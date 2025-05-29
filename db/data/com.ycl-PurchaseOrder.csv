@@ -4,3 +4,18 @@ ID,Description,Vendor_Number,Company_Code,DocumentType_ID,createdAt,createdBy,mo
 1003,Annual Contract Supplies,3,1003,EUB,2025-05-05,charlie,2025-05-06,charlie
 1004,Internal Transfer Request,4,1004,UB,2025-05-07,diana,2025-05-08,diana
 1005,Test Dummy PO,5,1005,DB,2025-05-09,eric,2025-05-10,eric
+1006,Printer Cartridge Purchase,1,1001,NB,2025-05-11,alice,2025-05-12,alice
+1007,Computer Accessories,2,1002,FO,2025-05-13,bob,2025-05-14,bob
+1008,Stationery Restock,3,1003,EUB,2025-05-15,charlie,2025-05-16,charlie
+1009,Warehouse Tools,4,1004,UB,2025-05-17,diana,2025-05-18,diana
+1010,Training Material Order,5,1005,DB,2025-05-19,eric,2025-05-20,eric
+1011,Team Furniture Upgrade,1,1001,NB,2025-05-21,alice,2025-05-22,alice
+1012,Laptop Purchase Request,2,1002,FO,2025-05-23,bob,2025-05-24,bob
+1013,Supply Chain Review Kit,3,1003,EUB,2025-05-25,charlie,2025-05-26,charlie
+1014,Inter-Branch Equipment,4,1004,UB,2025-05-27,diana,2025-05-28,diana
+1015,Sample Order PO,5,1005,DB,2025-05-29,eric,2025-05-30,eric
+1016,Department Assets,1,1001,NB,2025-05-31,alice,2025-06-01,alice
+1017,Monitor Stand Request,2,1002,FO,2025-06-02,bob,2025-06-03,bob
+1018,Paper Stocking,3,1003,EUB,2025-06-04,charlie,2025-06-05,charlie
+1019,Factory Supply Update,4,1004,UB,2025-06-06,diana,2025-06-07,diana
+1020,Archived Testing Record,5,1005,DB,2025-06-08,eric,2025-06-09,eric

@@ -43,17 +43,20 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "rootView": {
+      "viewName": "com.ycl.purchaseorder.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    },
     "dependencies": {
-      "minUI5Version": "1.136.0",
+      "minUI5Version": "1.108.0",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.f": {},
+        "sap.ui.comp": {}
       }
-    },
-    "contentDensities": {
-      "compact": true,
-      "cozy": true
     },
     "models": {
       "i18n": {
@@ -66,49 +69,43 @@
         "dataSource": "mainService",
         "preload": true,
         "settings": {
+          "defaultBindingMode": "TwoWay",
+          "useBatch": true,
+          "defaultCountMode": "None"
         }
       }
-    },
-    "resources": {
-      "css": [
-        {
-          "uri": "css/style.css"
-        }
-      ]
     },
     "routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",
-        "controlAggregation": "pages",
-        "controlId": "app",
-        "transition": "slide",
-        "type": "View",
         "viewType": "XML",
-        "path": "com.ycl.purchaseorder.view",
-        "async": true,
-        "viewPath": "com.ycl.purchaseorder.view"
+        "viewPath": "com.ycl.purchaseorder.view",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "async": true
       },
       "routes": [
         {
+          "pattern": "",
           "name": "RouteList",
-          "pattern": ":?query:",
-          "target": [
-            "TargetList"
-          ]
+          "target": "List"
+        },
+        {
+          "pattern": "Detail/{ID}",
+          "name": "RouteDetail",
+          "target": "Detail"
         }
       ],
       "targets": {
-        "TargetList": {
-          "id": "List",
-          "name": "List"
+        "List": {
+          "viewName": "List",
+          "viewId": "List"
+        },
+        "Detail": {
+          "viewName": "Detail",
+          "viewId": "Detail"
         }
       }
-    },
-    "rootView": {
-      "viewName": "com.ycl.purchaseorder.view.App",
-      "type": "XML",
-      "id": "App",
-      "async": true
     }
   }
 }

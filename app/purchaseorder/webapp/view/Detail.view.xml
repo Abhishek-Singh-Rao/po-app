@@ -1,0 +1,60 @@
+<mvc:View 
+  controllerName="com.ycl.purchaseorder.controller.Detail"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:form="sap.ui.layout.form"
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+
+  <Page id="detailPage" title="Purchase Order Details" showNavButton="true" navButtonPress=".onNavBack">
+    
+    <headerContent>
+      <VBox>
+        <ObjectHeader
+          title="{Description}"
+          number="{ID}"
+          numberUnit="{Vendor/Number}"
+          intro="Total: {path: 'Items', formatter: '.formatTotalAmount'}" />
+      </VBox>
+    </headerContent>
+
+    <content>
+      <!-- PO Header Details -->
+      <Panel headerText="PO Details">
+        <form:SimpleForm>
+          <Label text="PO Number" /><Text text="{ID}" />
+          <Label text="Description" /><Text text="{Description}" />
+          <Label text="Vendor" /><Text text="{Vendor/Number}" />
+          <Label text="Company Code" /><Text text="{Company/Code}" />
+          <Label text="Document Type" /><Text text="{DocumentType_ID}" />
+        </form:SimpleForm>
+      </Panel>
+
+      <!-- PO Item Table -->
+      <Panel headerText="Item Details">
+        <Table items="{Items}">
+          <columns>
+            <Column><Text text="Item Number" /></Column>
+            <Column><Text text="Description" /></Column>
+            <Column><Text text="Quantity" /></Column>
+            <Column><Text text="UoM" /></Column>
+            <Column><Text text="Rate" /></Column>
+            <Column><Text text="Amount" /></Column>
+          </columns>
+          <items>
+            <ColumnListItem>
+              <cells>
+                <Text text="{ItemNo}" />
+                <Text text="{Description}" />
+                <Text text="{Quantity}" />
+                <Text text="{Uom}" />
+                <Text text="{Rate}" />
+                <Text text="{Amount}" />
+              </cells>
+            </ColumnListItem>
+          </items>
+        </Table>
+      </Panel>
+    </content>
+
+  </Page>
+</mvc:View>

@@ -1,6 +1,121 @@
-<mvc:View controllerName="com.ycl.purchaseorder.controller.List"
+<mvc:View
+    controllerName="com.ycl.purchaseorder.controller.List"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
-    <Page id="page" title="{i18n>title}">
-    </Page>
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:svm="sap.ui.comp.smartvariants"
+    xmlns:core="sap.ui.core">
+
+    <f:DynamicPage headerExpanded="true" fitContent="false">
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <svm:SmartVariantManagement id="svm" showExecuteOnSelection="true" enableExecuteOnSelection="true"/>
+                </f:heading>
+                <f:expandedContent>
+                    <Label id="expandedLabel" text="No filters active"/>
+                </f:expandedContent>
+                <f:snappedContent>
+                    <Label id="snappedLabel" text="No filters active"/>
+                </f:snappedContent>
+            </f:DynamicPageTitle>
+        </f:title>
+
+        <f:header>
+            <f:DynamicPageHeader>
+                <f:content>
+                    <fb:FilterBar
+                        id="filterbar"
+                        persistencyKey="myPersKey"
+                        useToolbar="false"
+                        search=".onSearch"
+                        filterChange=".onFilterChange"
+                        afterVariantLoad=".onAfterVariantLoad">
+
+                        <fb:filterGroupItems>
+
+                            <fb:FilterGroupItem name="ID" label="PO Number" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox selectionChange=".onSelectionChange"
+                                        items="{ path: '/PurchaseOrder', parameters: { top: 100 } }">
+                                        <core:Item key="{ID}" text="{ID}" />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                            <fb:FilterGroupItem name="Description" label="PO Description" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox selectionChange=".onSelectionChange"
+                                        items="{ path: '/PurchaseOrder', parameters: { top: 100 } }">
+                                        <core:Item key="{Description}" text="{Description}" />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                            <fb:FilterGroupItem name="Company_Code" label="Company" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox selectionChange=".onSelectionChange"
+                                        items="{ path: '/Company', parameters: { top: 100 } }">
+                                        <core:Item key="{Code}" text="{Code}" />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                            <fb:FilterGroupItem name="Vendor_Number" label="Vendor" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox selectionChange=".onSelectionChange"
+                                        items="{ path: '/Vendor', parameters: { top: 100 } }">
+                                        <core:Item key="{Number}" text="{Number}" />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                            <fb:FilterGroupItem name="DocumentType_ID" label="Document Type" groupName="Group1" visibleInFilterBar="true">
+                                <fb:control>
+                                    <MultiComboBox selectionChange=".onSelectionChange"
+                                        items="{ path: '/DocumentType', parameters: { top: 100 } }">
+                                        <core:Item key="{ID}" text="{ID}" />
+                                    </MultiComboBox>
+                                </fb:control>
+                            </fb:FilterGroupItem>
+
+                        </fb:filterGroupItems>
+                    </fb:FilterBar>
+                </f:content>
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <f:content>
+            <Table
+                id="table"
+                growing="true"
+                growingThreshold="5"
+                growingScrollToLoad="true"
+                items="{ path: '/PurchaseOrder', parameters: { expand: 'Items,Company,Vendor,DocumentType' } }"
+                mode="None"> <!-- No selection, only click -->
+
+                <columns>
+                    <Column><Text text="PO Number" /></Column>
+                    <Column><Text text="Company" /></Column>
+                    <Column><Text text="Vendor" /></Column>
+                    <Column><Text text="Document Type" /></Column>
+                    <Column><Text text="Total Amount" /></Column>
+                </columns>
+
+                <items>
+                    <!-- ADD press here on ColumnListItem -->
+                   <ColumnListItem type="Active" press=".onItemPress">
+                        <cells>
+                            <ObjectIdentifier title="{Description}" text="{ID}" />
+                            <Text text="{Company/Description} ({Company/Code})" />
+                            <Text text="{Vendor/Number}" />
+                            <Text text="{DocumentType_ID}" />
+                            <Text text="{path: 'Items', formatter: '.formatTotalAmount'}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+    </f:DynamicPage>
 </mvc:View>
