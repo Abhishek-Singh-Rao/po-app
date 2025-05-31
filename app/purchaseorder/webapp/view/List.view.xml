@@ -109,7 +109,7 @@
                         <cells>
                             <ObjectIdentifier title="{Description}" text="{ID}" />
                             <Text text="{Company/Description} ({Company/Code})" />
-                            <Text text="{Vendor/Number}" />
+                            <Text text="{Vendor/Description} ({Vendor/Number})" />
                             <Text text="{DocumentType_ID}" />
                             <Text text="{path: 'Items', formatter: '.formatTotalAmount'}" />
                         </cells>

@@ -1,35 +1,63 @@
 <mvc:View 
   controllerName="com.ycl.purchaseorder.controller.Detail"
   xmlns:mvc="sap.ui.core.mvc"
-  xmlns:form="sap.ui.layout.form"
   xmlns="sap.m"
-  xmlns:core="sap.ui.core">
+  xmlns:f="sap.f"
+  xmlns:layout="sap.ui.layout"
+  xmlns:form="sap.ui.layout.form"
+  xmlns:core="sap.ui.core"
+  height="100%">
 
-  <Page id="detailPage" title="Purchase Order Details" showNavButton="true" navButtonPress=".onNavBack">
-    
-    <headerContent>
-      <VBox>
-        <ObjectHeader
-          title="{Description}"
-          number="{ID}"
-          numberUnit="{Vendor/Number}"
-          intro="Total: {path: 'Items', formatter: '.formatTotalAmount'}" />
-      </VBox>
-    </headerContent>
+  <f:DynamicPage 
+    id="detailDynamicPage" 
+    preserveHeaderStateOnScroll="true" 
+    headerExpanded="true"
+    showFooter="false" 
+    fitContent="true">
 
-    <content>
-      <!-- PO Header Details -->
-      <Panel headerText="PO Details">
-        <form:SimpleForm>
-          <Label text="PO Number" /><Text text="{ID}" />
-          <Label text="Description" /><Text text="{Description}" />
-          <Label text="Vendor" /><Text text="{Vendor/Number}" />
-          <Label text="Company Code" /><Text text="{Company/Code}" />
-          <Label text="Document Type" /><Text text="{DocumentType_ID}" />
-        </form:SimpleForm>
-      </Panel>
+    <!-- DynamicPage Title -->
+    <f:title>
+      <f:DynamicPageTitle>
+        <f:heading>
+          <Title text="{Description}" />
+        </f:heading>
 
-      <!-- PO Item Table -->
+        <f:snappedTitleOnMobile>
+          <Title text="{Description}" />
+        </f:snappedTitleOnMobile>
+
+        <f:actions>
+          <ToolbarSpacer/>
+          <Button icon="sap-icon://nav-back" press=".onNavBack" tooltip="Back" />
+        </f:actions>
+      </f:DynamicPageTitle>
+    </f:title>
+
+    <!-- DynamicPage Header (Form Section) -->
+    <f:header>
+      <f:DynamicPageHeader pinnable="true">
+        <FlexBox alignItems="Start" justifyContent="Start">
+          <items>
+            <Panel backgroundDesign="Transparent" class="sapUiNoContentPadding">
+              <content>
+                <layout:HorizontalLayout>
+                  <layout:VerticalLayout class="sapUiMediumMarginEnd">
+                    <ObjectAttribute title="PO Number" text="{ID}" />
+                    <ObjectAttribute title="Description" text="{Description}" />
+                    <ObjectAttribute title="Vendor" text="{Vendor/Number}" />
+                    <ObjectAttribute title="Company Code" text="{Company/Code}" />
+                    <ObjectAttribute title="Document Type" text="{DocumentType_ID}" />
+                  </layout:VerticalLayout>
+                </layout:HorizontalLayout>
+              </content>
+            </Panel>
+          </items>
+        </FlexBox>
+      </f:DynamicPageHeader>
+    </f:header>
+
+    <!-- Main Content (Item Table unchanged) -->
+    <f:content>
       <Panel headerText="Item Details">
         <Table items="{Items}">
           <columns>
@@ -54,7 +82,7 @@
           </items>
         </Table>
       </Panel>
-    </content>
-
-  </Page>
+    </f:content>
+    
+  </f:DynamicPage>
 </mvc:View>
