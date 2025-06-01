@@ -44,8 +44,8 @@
                   <layout:VerticalLayout class="sapUiMediumMarginEnd">
                     <ObjectAttribute title="PO Number" text="{ID}" />
                     <ObjectAttribute title="Description" text="{Description}" />
-                    <ObjectAttribute title="Vendor" text="{Vendor/Number}" />
-                    <ObjectAttribute title="Company Code" text="{Company/Code}" />
+                    <ObjectAttribute title="Vendor" text="{Vendor/Description} ({Vendor/Number})" />
+                    <ObjectAttribute title="Company Code" text="{Company/Description} ({Company/Code})" />
                     <ObjectAttribute title="Document Type" text="{DocumentType_ID}" />
                   </layout:VerticalLayout>
                 </layout:HorizontalLayout>
@@ -61,12 +61,12 @@
       <Panel headerText="Item Details">
         <Table items="{Items}">
           <columns>
-            <Column><Text text="Item Number" /></Column>
-            <Column><Text text="Description" /></Column>
-            <Column><Text text="Quantity" /></Column>
-            <Column><Text text="UoM" /></Column>
-            <Column><Text text="Rate" /></Column>
-            <Column><Text text="Amount" /></Column>
+            <Column hAlign="Begin"><Text text="Item Number" /></Column>
+            <Column  hAlign="Begin"><Text text="Description" /></Column>
+            <Column hAlign="Right"><Text text="Quantity" /></Column>
+            <Column hAlign="Center"><Text text="UoM" /></Column>
+            <Column hAlign="End"><Text text="Rate" /></Column>
+            <Column hAlign="End"><Text text="Amount" /></Column>
           </columns>
           <items>
             <ColumnListItem>
@@ -75,8 +75,24 @@
                 <Text text="{Description}" />
                 <Text text="{Quantity}" />
                 <Text text="{Uom}" />
-                <Text text="{Rate}" />
-                <Text text="{Amount}" />
+                <ObjectNumber
+                      number="{ path: 'Rate',
+                        type: 'sap.ui.model.type.Float',
+                        formatOptions: {
+                          minFractionDigits: 2,
+                          maxFractionDigits: 2
+                        }
+                      }"
+                      unit="INR"/>
+                <ObjectNumber
+                    number="{ path: 'Amount',
+                      type: 'sap.ui.model.type.Float',
+                      formatOptions: {
+                        minFractionDigits: 2,
+                        maxFractionDigits: 2
+                      }
+                    }"
+                    unit="INR"/>
               </cells>
             </ColumnListItem>
           </items>

@@ -96,11 +96,11 @@
                 mode="None"> <!-- No selection, only click -->
 
                 <columns>
-                    <Column><Text text="PO Number" /></Column>
-                    <Column><Text text="Company" /></Column>
-                    <Column><Text text="Vendor" /></Column>
-                    <Column><Text text="Document Type" /></Column>
-                    <Column><Text text="Total Amount" /></Column>
+                    <Column hAlign="Begin"><Text text="PO Number" /></Column>
+                    <Column hAlign="Begin"><Text text="Company" /></Column>
+                    <Column hAlign="Begin"><Text text="Vendor" /></Column>
+                    <Column hAlign="Begin"><Text text="Document Type" /></Column>
+                    <Column hAlign="End"><Text text="Total Amount" /></Column>
                 </columns>
 
                 <items>
