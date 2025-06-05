@@ -163,12 +163,12 @@
                         <ToolbarSpacer />
                         <Button
                             id="b1"
-                            icon="sap-icon://add"
+                            text="Add"
                             press=".onOpenCreateDialog"
                         />
                         <Button
                             id="b2"
-                            icon="sap-icon://delete"
+                            text="Delete"
                             press=".onDeleteProduct"
                         />
                     </OverflowToolbar>
