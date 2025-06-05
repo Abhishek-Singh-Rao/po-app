@@ -1,104 +1,144 @@
 <mvc:View 
   controllerName="com.ycl.purchaseorder.controller.Detail"
   xmlns:mvc="sap.ui.core.mvc"
-  xmlns="sap.m"
-  xmlns:f="sap.f"
-  xmlns:layout="sap.ui.layout"
-  xmlns:form="sap.ui.layout.form"
+  xmlns="sap.uxap"
+  xmlns:m="sap.m"
   xmlns:core="sap.ui.core"
+  xmlns:forms="sap.ui.layout.form"
   height="100%">
 
-  <f:DynamicPage 
-    id="detailDynamicPage" 
-    preserveHeaderStateOnScroll="true" 
-    headerExpanded="true"
-    showFooter="false" 
-    fitContent="true">
+  <ObjectPageLayout id="ObjectPageLayout" upperCaseAnchorBar="false">
 
-    <!-- DynamicPage Title -->
-    <f:title>
-      <f:DynamicPageTitle>
-        <f:heading>
-          <Title text="{Description}" />
-        </f:heading>
+    <!-- Object Page Header Title -->
+    <headerTitle>
+      <ObjectPageDynamicHeaderTitle>
+        <expandedHeading>
+          <m:VBox>
+            <m:Title text="{Description}" />
+            <m:Text text="PO-{ID}" />
+          </m:VBox>
+        </expandedHeading>
 
-        <f:snappedTitleOnMobile>
-          <Title text="{Description}" />
-        </f:snappedTitleOnMobile>
+        <snappedHeading>
+          <m:Title text="{Description}" />
+        </snappedHeading>
 
-        <f:actions>
-          <ToolbarSpacer/>
-          <Button icon="sap-icon://nav-back" press=".onNavBack" tooltip="Back" />
-        </f:actions>
-      </f:DynamicPageTitle>
-    </f:title>
+        <snappedTitleOnMobile>
+          <m:Title text="{Description}" />
+        </snappedTitleOnMobile>
 
-    <!-- DynamicPage Header (Form Section) -->
-    <f:header>
-      <f:DynamicPageHeader pinnable="true">
-        <FlexBox alignItems="Start" justifyContent="Start">
-          <items>
-            <Panel backgroundDesign="Transparent" class="sapUiNoContentPadding">
-              <content>
-                <layout:HorizontalLayout>
-                  <layout:VerticalLayout class="sapUiMediumMarginEnd">
-                    <ObjectAttribute title="PO Number" text="{ID}" />
-                    <ObjectAttribute title="Description" text="{Description}" />
-                    <ObjectAttribute title="Vendor" text="{Vendor/Description} ({Vendor/Number})" />
-                    <ObjectAttribute title="Company Code" text="{Company/Description} ({Company/Code})" />
-                    <ObjectAttribute title="Document Type" text="{DocumentType_ID}" />
-                  </layout:VerticalLayout>
-                </layout:HorizontalLayout>
-              </content>
-            </Panel>
-          </items>
-        </FlexBox>
-      </f:DynamicPageHeader>
-    </f:header>
+        <actions>
+          <m:Button icon="sap-icon://nav-back" press=".onNavBack" tooltip="Back" />
+        </actions>
+      </ObjectPageDynamicHeaderTitle>
+    </headerTitle>
 
-    <!-- Main Content (Item Table unchanged) -->
-    <f:content>
-      <Panel headerText="Item Details">
-        <Table items="{Items}">
-          <columns>
-            <Column hAlign="Begin"><Text text="Item Number" /></Column>
-            <Column  hAlign="Begin"><Text text="Description" /></Column>
-            <Column hAlign="Right"><Text text="Quantity" /></Column>
-            <Column hAlign="Center"><Text text="UoM" /></Column>
-            <Column hAlign="End"><Text text="Rate" /></Column>
-            <Column hAlign="End"><Text text="Amount" /></Column>
-          </columns>
-          <items>
-            <ColumnListItem>
-              <cells>
-                <Text text="{ItemNo}" />
-                <Text text="{Description}" />
-                <Text text="{Quantity}" />
-                <Text text="{Uom}" />
-                <ObjectNumber
-                      number="{ path: 'Rate',
-                        type: 'sap.ui.model.type.Float',
-                        formatOptions: {
-                          minFractionDigits: 2,
-                          maxFractionDigits: 2
-                        }
-                      }"
-                      unit="INR"/>
-                <ObjectNumber
-                    number="{ path: 'Amount',
-                      type: 'sap.ui.model.type.Float',
-                      formatOptions: {
-                        minFractionDigits: 2,
-                        maxFractionDigits: 2
-                      }
-                    }"
-                    unit="INR"/>
-              </cells>
-            </ColumnListItem>
-          </items>
-        </Table>
-      </Panel>
-    </f:content>
-    
-  </f:DynamicPage>
+    <!-- Object Page Header Content -->
+    <headerContent>
+      <m:FlexBox wrap="Wrap" fitContainer="true">
+        <!-- Horizontal Container 1 -->
+        <m:HBox justifyContent="Start" class="sapUiSmallMarginBegin sapUiMediumMarginTop" renderType="Bare">
+          <m:VBox class="sapUiMarginEnd sapUiSmallMarginBottom" width="250px">
+            <!-- PO Number -->
+            <m:HBox renderType="Bare" class="sapUiTinyMarginBottom">
+              <m:Label text="PO Number :" class="sapUiTinyMarginEnd" />
+              <m:Text text="{ID}" />
+            </m:HBox>
+
+            <!-- Company Code -->
+            <m:HBox renderType="Bare" class="sapUiTinyMarginBottom">
+              <m:Label text="Company Code :" class="sapUiTinyMarginEnd" />
+              <m:Link text="{Company/Description} ({Company/Code})" />
+            </m:HBox>
+
+            <!-- Vendor -->
+            <m:HBox renderType="Bare" class="sapUiTinyMarginBottom">
+              <m:Label text="Vendor :" class="sapUiTinyMarginEnd" />
+              <m:Link text="{Vendor/Description} ({Vendor/Number})" />
+            </m:HBox>
+          </m:VBox>
+
+          <!-- Description -->
+          <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
+            <m:Title text="Description" />
+            <m:ObjectStatus text="{Description}" state="Error" class="sapMObjectStatusLarge"/>
+          </m:VBox>
+
+          <!-- Document Type -->
+          <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom" width="450px">
+            <m:Title text="Document Type" />
+            <m:ObjectStatus text="{DocumentType_ID}" class="sapMObjectStatusLarge"/>
+          </m:VBox>
+          
+          <!-- Amount -->
+          <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
+            <m:Title text="Total Amount" />
+            <m:ObjectNumber number="{TotalAmount}" unit="INR" state="Success" class="sapMObjectNumberLarge"/>
+          </m:VBox>
+        </m:HBox>
+          
+        <!-- Horizontal Container 2 -->
+        <m:HBox justifyContent="Start" class="sapUiSmallMarginBegin" renderType="Bare">
+        <m:VBox class="sapUiLargeMarginEnd sapUiSmallMarginBottom" width="585px"> 
+          <!-- Created By -->
+          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+          <m:Label text="Created By :" />
+          <m:Text text="{ parts: ['createdBy'], formatter: '.toProperCase' }" class="sapUiTinyMarginBegin"/>
+          </m:HBox>
+
+          <!-- Created On -->
+          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+          <m:Label text="Created On :" />
+          <m:Text text="{createdAt}" class="sapUiTinyMarginBegin" />
+          </m:HBox>
+        </m:VBox>
+
+        <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
+          <!-- Modified By -->
+          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+          <m:Label text="Modified By :" />
+          <m:Text text="{ parts: ['modifiedBy'], formatter: '.toProperCase' }" class="sapUiTinyMarginBegin"/>
+          </m:HBox>
+          <!-- Modified On -->
+          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+          <m:Label text="Modified On :" />
+          <m:Text text="{modifiedAt}" class="sapUiTinyMarginBegin"/>
+          </m:HBox>
+        </m:VBox>
+        </m:HBox>
+      </m:FlexBox>
+    </headerContent>
+
+    <!-- Sections -->
+    <sections>
+      <ObjectPageSection title="Item Details">
+        <subSections>
+          <ObjectPageSubSection>
+            <blocks>
+              <m:Table items="{Items}" class="sapUxAPObjectPageSubSectionAlignContent">
+                <m:columns>
+                  <m:Column><m:Text text="Item Number" /></m:Column>
+                  <m:Column><m:Text text="Description" /></m:Column>
+                  <m:Column><m:Text text="Quantity" /></m:Column>
+                  <m:Column><m:Text text="UoM" /></m:Column>
+                  <m:Column hAlign="End"><m:Text text="Rate" /></m:Column>
+                  <m:Column hAlign="End"><m:Text text="Amount" /></m:Column>
+                </m:columns>
+                <m:items>
+                  <m:ColumnListItem>
+                    <m:Text text="{ItemNo}" />
+                    <m:Link text="{Description}" />
+                    <m:Text text="{Quantity}" />
+                    <m:Text text="{Uom}" />
+                    <m:ObjectNumber number="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }" unit="INR" />
+                    <m:ObjectNumber number="{ path: 'Amount', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }" unit="INR" />
+                  </m:ColumnListItem>
+                </m:items>
+              </m:Table>
+            </blocks>
+          </ObjectPageSubSection>
+        </subSections>
+      </ObjectPageSection>
+    </sections>
+  </ObjectPageLayout>
 </mvc:View>

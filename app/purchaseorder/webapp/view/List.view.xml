@@ -65,7 +65,7 @@
                                     <SearchField
                                         id="poSearchField"
                                         width="300px"
-                                        placeholder="Search PO Number"
+                                        placeholder="Search"
                                         search=".onSearch" />
                                 </fb:control>
                             </fb:FilterGroupItem>
@@ -81,8 +81,7 @@
                                     valueHelpRequest=".onPODescriptionHelp"
                                     valueHelpOnly="true"
                                     showSuggestion="true"
-                                    suggest=".onPOSuggest"
-                                    placeholder="Select PO Descriptions" />
+                                    suggest=".onPOSuggest"/>
                                 </fb:control>
                             </fb:FilterGroupItem>
 

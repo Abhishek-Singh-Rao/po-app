@@ -42,6 +42,10 @@ sap.ui.define([
         }
       });
       return total.toFixed(2) + " INR";
-    }
+    },
+    toProperCase: function (sText) {
+      if (!sText || typeof sText !== "string") return "";
+      return sText.charAt(0).toUpperCase() + sText.slice(1).toLowerCase();
+    }    
   });
 });
