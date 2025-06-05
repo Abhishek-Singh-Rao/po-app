@@ -2,8 +2,12 @@ sap.ui.define([
   "sap/ui/core/mvc/Controller",
   "sap/ui/comp/smartvariants/PersonalizableInfo",
   "sap/ui/model/Filter",
-  "sap/ui/model/FilterOperator"
-], function (Controller, PersonalizableInfo, Filter, FilterOperator) {
+  "sap/ui/core/Fragment",
+  "sap/m/MessageToast",
+  "sap/ui/model/FilterOperator",
+  "sap/m/MessageBox",
+
+], function (Controller, PersonalizableInfo, Filter, Fragment, MessageToast, FilterOperator, MessageBox) {
   "use strict";
 
   return Controller.extend("com.ycl.purchaseorder.controller.List", {
@@ -22,18 +26,19 @@ sap.ui.define([
       });
 
       this.oSmartVariantManagement.addPersonalizableControl(oPersInfo);
-      this.oSmartVariantManagement.initialise(function () {}, this.oFilterBar);
+      this.oSmartVariantManagement.initialise(() => { }, this.oFilterBar);
     },
 
+    // ---------------- Filter Handling ----------------
     onSearch: function () {
       if (this.oTable) this.oTable.setBusy(true);
 
       const aFilterItems = this.oFilterBar.getFilterGroupItems();
       const aFilters = [];
 
-      aFilterItems.forEach(function (oFilterGroupItem) {
-        const sField = oFilterGroupItem.getName();
-        const oControl = oFilterGroupItem.getControl();
+      aFilterItems.forEach((oItem) => {
+        const sField = oItem.getName();
+        const oControl = oItem.getControl();
         const aSelectedKeys = oControl.getSelectedKeys?.() || [];
 
         if (aSelectedKeys.length > 0) {
@@ -41,10 +46,7 @@ sap.ui.define([
             ? FilterOperator.EQ
             : FilterOperator.Contains;
 
-          const aSubFilters = aSelectedKeys.map(function (sKey) {
-            return new Filter(sField, operator, sKey);
-          });
-
+          const aSubFilters = aSelectedKeys.map((sKey) => new Filter(sField, operator, sKey));
           aFilters.push(new Filter({ filters: aSubFilters, and: false }));
         }
       });
@@ -56,21 +58,11 @@ sap.ui.define([
           this.oTable.setShowOverlay(false);
           this.oTable.setBusy(false);
         } else {
-          setTimeout(applyFilters, 200); // Retry after 200ms
+          setTimeout(applyFilters, 200);
         }
       };
 
       applyFilters();
-    },
-
-    onItemPress: function (oEvent) {
-      const oItem = oEvent.getSource();
-      const oContext = oItem.getBindingContext();
-      const sId = oContext.getProperty("ID");
-
-      this.getOwnerComponent().getRouter().navTo("RouteDetail", {
-        ID: encodeURIComponent(sId)
-      });
     },
 
     onSelectionChange: function () {
@@ -95,35 +87,64 @@ sap.ui.define([
     getFormattedSummaryText: function () {
       const aItems = this.oFilterBar.retrieveFiltersWithValues();
       if (aItems.length === 0) return "No filters active";
-      if (aItems.length === 1) return "1 filter active: " + aItems.join(", ");
-      return aItems.length + " filters active: " + aItems.join(", ");
+      return `${aItems.length} filter(s) active: ${aItems.join(", ")}`;
     },
 
     getFormattedSummaryTextExpanded: function () {
       const aVisible = this.oFilterBar.retrieveFiltersWithValues();
-      if (aVisible.length === 0) return "No filters active";
-      let sText = aVisible.length + " filter(s) active";
       const aHidden = this.oFilterBar.retrieveNonVisibleFiltersWithValues();
-      if (aHidden && aHidden.length > 0) {
-        sText += " (" + aHidden.length + " hidden)";
-      }
+      let sText = `${aVisible.length} filter(s) active`;
+      if (aHidden?.length > 0) sText += ` (${aHidden.length} hidden)`;
       return sText;
     },
 
+    // ---------------- Navigation ----------------
+    onItemPress: function (oEvent) {
+      const oItem = oEvent.getSource();
+      const sId = oItem.getBindingContext().getProperty("ID");
+      this.getOwnerComponent().getRouter().navTo("RouteDetail", {
+        ID: encodeURIComponent(sId)
+      });
+    },
+
+    // ---------------- Amount Formatter ----------------
     formatTotalAmount: function (aItems) {
       if (!Array.isArray(aItems)) return "0.00 INR";
-
       const oModel = this.getView().getModel();
       let totalAmount = 0;
 
-      aItems.forEach(ctxPath => {
+      aItems.forEach((ctxPath) => {
         const item = oModel.getProperty("/" + ctxPath);
-        if (item && typeof item.Amount === "number") {
-          totalAmount += item.Amount;
-        }
+        if (item?.Amount) totalAmount += item.Amount;
       });
 
       return totalAmount.toFixed(2) + " INR";
+    },
+
+    // DELETE
+    onDeleteProduct: function () {
+      const oSelected = this.oTable.getSelectedItem();
+      if (!oSelected) {
+        MessageBox.information("Please select a record to delete.");
+        return;
+      }
+
+      const oContext = oSelected.getBindingContext();
+      const sPath = oContext.getPath();
+
+      MessageBox.confirm("Are you sure you want to delete this item?", {
+        onClose: (oAction) => {
+          if (oAction === MessageBox.Action.OK) {
+            oContext.getModel().remove(sPath, {
+              success: () => {
+                MessageBox.success("Deleted successfully");
+                this.oTable.getBinding("items").refresh();
+              },
+              error: () => MessageBox.error("Deletion failed")
+            });
+          }
+        }
+      });
     }
   });
 });

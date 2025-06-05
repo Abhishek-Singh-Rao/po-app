@@ -16,6 +16,10 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch-purchaseorder": "cds watch --open purchaseorder/webapp/index.html?sap-ui-xx-viewCache=false"
-  }
+    "watch-purchaseorder": "cds watch --open purchaseorder/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-poappfe": "cds watch --open poappfe/webapp/index.html?sap-ui-xx-viewCache=false"
+  },
+  "sapux": [
+    "app/poappfe"
+  ]
 }

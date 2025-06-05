@@ -14,6 +14,7 @@ sap.ui.define([
   
       init: function() {
         UIComponent.prototype.init.apply(this, arguments);
+        jQuery.sap.includeStyleSheet(jQuery.sap.getModulePath("com.ycl.purchaseorder.css") + "/style.css");
         this.setModel(models.createDeviceModel(), "device");
         this.getRouter().initialize();  // ❗️Fails if routing is not defined properly
       }
