@@ -6,8 +6,17 @@ sap.ui.define([
   "sap/m/MessageToast",
   "sap/ui/model/FilterOperator",
   "sap/m/MessageBox",
-
-], function (Controller, PersonalizableInfo, Filter, Fragment, MessageToast, FilterOperator, MessageBox) {
+  "sap/m/Token"
+], function (
+  Controller,
+  PersonalizableInfo,
+  Filter,
+  Fragment,
+  MessageToast,
+  FilterOperator,
+  MessageBox,
+  Token
+) {
   "use strict";
 
   return Controller.extend("com.ycl.purchaseorder.controller.List", {
@@ -26,10 +35,9 @@ sap.ui.define([
       });
 
       this.oSmartVariantManagement.addPersonalizableControl(oPersInfo);
-      this.oSmartVariantManagement.initialise(() => { }, this.oFilterBar);
+      this.oSmartVariantManagement.initialise(() => {}, this.oFilterBar);
     },
 
-    // ---------------- Filter Handling ----------------
     onSearch: function () {
       if (this.oTable) this.oTable.setBusy(true);
 
@@ -39,15 +47,31 @@ sap.ui.define([
       aFilterItems.forEach((oItem) => {
         const sField = oItem.getName();
         const oControl = oItem.getControl();
-        const aSelectedKeys = oControl.getSelectedKeys?.() || [];
 
-        if (aSelectedKeys.length > 0) {
-          const operator = ["ID", "Vendor_Number", "Company_Code", "DocumentType_ID"].includes(sField)
-            ? FilterOperator.EQ
-            : FilterOperator.Contains;
+        if (sField === "PO_Search") {
+          const sValue = oControl.getValue();
+          if (sValue) {
+            aFilters.push(new Filter("ID", FilterOperator.EQ, sValue));
+          }
+        } else if (sField === "Description") {
+          const aTokens = oControl.getTokens();
+          if (aTokens.length > 0) {
+            const aSubFilters = aTokens.map((oToken) =>
+              new Filter("Description", FilterOperator.Contains, oToken.getText())
+            );
+            aFilters.push(new Filter({ filters: aSubFilters, and: false }));
+          }
+        } else {
+          const aSelectedKeys = oControl.getSelectedKeys?.() || [];
 
-          const aSubFilters = aSelectedKeys.map((sKey) => new Filter(sField, operator, sKey));
-          aFilters.push(new Filter({ filters: aSubFilters, and: false }));
+          if (aSelectedKeys.length > 0) {
+            const operator = ["ID", "Vendor_Number", "Company_Code", "DocumentType_ID"].includes(sField)
+              ? FilterOperator.EQ
+              : FilterOperator.Contains;
+
+            const aSubFilters = aSelectedKeys.map((sKey) => new Filter(sField, operator, sKey));
+            aFilters.push(new Filter({ filters: aSubFilters, and: false }));
+          }
         }
       });
 
@@ -78,6 +102,69 @@ sap.ui.define([
       this._updateLabelsAndTable();
     },
 
+    onPOSuggest: function (oEvent) {
+      const sTerm = oEvent.getParameter("suggestValue");
+      const oInput = oEvent.getSource();
+      const oBinding = oInput.getBinding("suggestionItems");
+
+      if (!sTerm) {
+        oBinding.filter([]);
+        return;
+      }
+
+      const oFilter = new Filter("Description", FilterOperator.Contains, sTerm);
+      oBinding.filter([oFilter]);
+    },
+
+    onPODescriptionHelp: function (oEvent) {
+      const oView = this.getView();
+
+      if (!this._oPODescDialog) {
+        Fragment.load({
+          id: oView.getId(),
+          name: "com.ycl.purchaseorder.fragment.PODescriptionValueHelp",
+          controller: this
+        }).then((oDialog) => {
+          this._oPODescDialog = oDialog;
+          oView.addDependent(oDialog);
+          oDialog.setModel(oView.getModel());
+          oDialog.open();
+        });
+      } else {
+        this._oPODescDialog.open();
+      }
+
+      this._oPODescField = oEvent.getSource(); // MultiInput field reference
+    },
+
+    onPODescriptionSearch: function (oEvent) {
+      const sValue = oEvent.getParameter("value");
+      const oFilter = new Filter("Description", FilterOperator.Contains, sValue);
+      const oBinding = oEvent.getSource().getBinding("items");
+      oBinding.filter([oFilter]);
+    },
+
+    onPODescriptionConfirm: function (oEvent) {
+      const aSelectedItems = oEvent.getParameter("selectedItems");
+      if (aSelectedItems && aSelectedItems.length > 0 && this._oPODescField) {
+        this._oPODescField.removeAllTokens();
+
+        aSelectedItems.forEach((item) => {
+          const sText = item.getTitle();
+          this._oPODescField.addToken(new Token({ text: sText }));
+        });
+
+        this.oFilterBar.fireFilterChange();
+      }
+    },
+
+    onPODescriptionCancel: function (oEvent) {
+      const oDialog = oEvent.getSource();
+      const oBinding = oDialog.getBinding("items");
+      oBinding.filter([]);
+      this._oPODescField = null;
+    },
+
     _updateLabelsAndTable: function () {
       this.oExpandedLabel.setText(this.getFormattedSummaryTextExpanded());
       this.oSnappedLabel.setText(this.getFormattedSummaryText());
@@ -98,7 +185,6 @@ sap.ui.define([
       return sText;
     },
 
-    // ---------------- Navigation ----------------
     onItemPress: function (oEvent) {
       const oItem = oEvent.getSource();
       const sId = oItem.getBindingContext().getProperty("ID");
@@ -107,7 +193,6 @@ sap.ui.define([
       });
     },
 
-    // ---------------- Amount Formatter ----------------
     formatTotalAmount: function (aItems) {
       if (!Array.isArray(aItems)) return "0.00 INR";
       const oModel = this.getView().getModel();
@@ -121,7 +206,6 @@ sap.ui.define([
       return totalAmount.toFixed(2) + " INR";
     },
 
-    // DELETE
     onDeleteProduct: function () {
       const oSelected = this.oTable.getSelectedItem();
       if (!oSelected) {

@@ -39,6 +39,13 @@
         <f:header>
             <f:DynamicPageHeader>
                 <f:content>
+                    <FlexBox
+                        direction="Row"
+                        alignItems="Center"
+                        justifyContent="Start"
+                        wrap="Wrap"
+                    class="sapUiSmallMarginBottom">
+                    
                     <fb:FilterBar
                         id="filterbar"
                         persistencyKey="myPersKey"
@@ -47,42 +54,35 @@
                         filterChange=".onFilterChange"
                         afterVariantLoad=".onAfterVariantLoad"
                     >
+                        
                         <fb:filterGroupItems>
                             <fb:FilterGroupItem
-                                name="ID"
-                                label="PO Number"
+                                name="PO_Search"
+                                label=""
                                 groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
+                                visibleInFilterBar="true">
                                 <fb:control>
-                                    <MultiComboBox
-                                        selectionChange=".onSelectionChange"
-                                        items="{ path: '/PurchaseOrder', parameters: { top: 100 } }"
-                                    >
-                                        <core:Item
-                                            key="{ID}"
-                                            text="{ID}"
-                                        />
-                                    </MultiComboBox>
+                                    <SearchField
+                                        id="poSearchField"
+                                        width="300px"
+                                        placeholder="Search PO Number"
+                                        search=".onSearch" />
                                 </fb:control>
                             </fb:FilterGroupItem>
-
                             <fb:FilterGroupItem
                                 name="Description"
                                 label="PO Description"
                                 groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
+                                visibleInFilterBar="true">
                                 <fb:control>
-                                    <MultiComboBox
-                                        selectionChange=".onSelectionChange"
-                                        items="{ path: '/PurchaseOrder', parameters: { top: 100 } }"
-                                    >
-                                        <core:Item
-                                            key="{Description}"
-                                            text="{Description}"
-                                        />
-                                    </MultiComboBox>
+                                <MultiInput
+                                    id="poDescriptionInput"
+                                    showValueHelp="true"
+                                    valueHelpRequest=".onPODescriptionHelp"
+                                    valueHelpOnly="true"
+                                    showSuggestion="true"
+                                    suggest=".onPOSuggest"
+                                    placeholder="Select PO Descriptions" />
                                 </fb:control>
                             </fb:FilterGroupItem>
 
@@ -144,6 +144,7 @@
                             </fb:FilterGroupItem>
                         </fb:filterGroupItems>
                     </fb:FilterBar>
+                    </FlexBox>
                 </f:content>
             </f:DynamicPageHeader>
         </f:header>
@@ -162,12 +163,12 @@
                         <Title text="Purchase Orders" />
                         <ToolbarSpacer />
                         <Button
-                            id="b2"
+                            id="b1"
                             icon="sap-icon://add"
                             press=".onOpenCreateDialog"
                         />
                         <Button
-                            id="b4"
+                            id="b2"
                             icon="sap-icon://delete"
                             press=".onDeleteProduct"
                         />
