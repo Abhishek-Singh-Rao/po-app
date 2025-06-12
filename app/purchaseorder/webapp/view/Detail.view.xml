@@ -1,144 +1,323 @@
-<mvc:View 
-  controllerName="com.ycl.purchaseorder.controller.Detail"
-  xmlns:mvc="sap.ui.core.mvc"
-  xmlns="sap.uxap"
-  xmlns:m="sap.m"
-  xmlns:core="sap.ui.core"
-  xmlns:forms="sap.ui.layout.form"
-  height="100%">
+<mvc:View
+    controllerName="com.ycl.purchaseorder.controller.Detail"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.uxap"
+    xmlns:m="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:forms="sap.ui.layout.form"
+    height="100%"
+>
+    <ObjectPageLayout
+        id="ObjectPageLayout"
+        upperCaseAnchorBar="false"
+        showFooter="true"
+    >
+        <!-- Object Page Header Title -->
+        <headerTitle>
+            <ObjectPageDynamicHeaderTitle>
+                <expandedHeading>
+                    <m:VBox>
+                        <m:Title text="{Description}" />
+                        <m:Text text="PO-{ID}" />
+                    </m:VBox>
+                </expandedHeading>
 
-  <ObjectPageLayout id="ObjectPageLayout" upperCaseAnchorBar="false">
+                <snappedHeading>
+                    <m:Title text="{Description}" />
+                </snappedHeading>
 
-    <!-- Object Page Header Title -->
-    <headerTitle>
-      <ObjectPageDynamicHeaderTitle>
-        <expandedHeading>
-          <m:VBox>
-            <m:Title text="{Description}" />
-            <m:Text text="PO-{ID}" />
-          </m:VBox>
-        </expandedHeading>
+                <snappedTitleOnMobile>
+                    <m:Title text="{Description}" />
+                </snappedTitleOnMobile>
 
-        <snappedHeading>
-          <m:Title text="{Description}" />
-        </snappedHeading>
+                <actions>
+                    <!-- <m:Button icon="sap-icon://nav-back" press=".onNavBack" tooltip="Back" /> -->
+                    <m:Button
+                        text="Edit"
+                        type="Emphasized"
+                        press="onEdit"
+                        visible="{viewModel>/isDisplayMode}"
+                    />
+                </actions>
+            </ObjectPageDynamicHeaderTitle>
+        </headerTitle>
 
-        <snappedTitleOnMobile>
-          <m:Title text="{Description}" />
-        </snappedTitleOnMobile>
+        <!-- Object Page Header Content -->
+        <headerContent>
+            <m:FlexBox
+                wrap="Wrap"
+                fitContainer="true"
+            >
+                <!-- Horizontal Container 1 -->
+                <m:HBox
+                    justifyContent="Start"
+                    class="sapUiSmallMarginBegin sapUiMediumMarginTop"
+                    renderType="Bare"
+                >
+                    <m:VBox class="sapUiMarginEnd sapUiSmallMarginBottom">
+                        <!-- PO Number -->
+                        <m:HBox
+                            renderType="Bare"
+                            class="sapUiTinyMarginBottom"
+                        >
+                            <m:Label
+                                text="PO Number :"
+                                class="sapUiTinyMarginEnd"
+                            />
+                            <m:Text text="{ID}" />
+                        </m:HBox>
 
-        <actions>
-          <m:Button icon="sap-icon://nav-back" press=".onNavBack" tooltip="Back" />
-        </actions>
-      </ObjectPageDynamicHeaderTitle>
-    </headerTitle>
+                        <!-- Company Code -->
+                        <m:HBox
+                            renderType="Bare"
+                            class="sapUiTinyMarginBottom"
+                        >
+                            <m:Label
+                                text="Company Code :"
+                                class="sapUiTinyMarginEnd"
+                            />
+                            <m:Link
+                                text="{Company/Description} ({Company/Code})"
+                            />
+                        </m:HBox>
 
-    <!-- Object Page Header Content -->
-    <headerContent>
-      <m:FlexBox wrap="Wrap" fitContainer="true">
-        <!-- Horizontal Container 1 -->
-        <m:HBox justifyContent="Start" class="sapUiSmallMarginBegin sapUiMediumMarginTop" renderType="Bare">
-          <m:VBox class="sapUiMarginEnd sapUiSmallMarginBottom" width="250px">
-            <!-- PO Number -->
-            <m:HBox renderType="Bare" class="sapUiTinyMarginBottom">
-              <m:Label text="PO Number :" class="sapUiTinyMarginEnd" />
-              <m:Text text="{ID}" />
-            </m:HBox>
+                        <!-- Vendor -->
+                        <m:HBox
+                            renderType="Bare"
+                            class="sapUiTinyMarginBottom"
+                        >
+                            <m:Label
+                                text="Vendor :"
+                                class="sapUiTinyMarginEnd"
+                            />
+                            <m:Link
+                                text="{Vendor/Description} ({Vendor/Number})"
+                            />
+                        </m:HBox>
+                    </m:VBox>
 
-            <!-- Company Code -->
-            <m:HBox renderType="Bare" class="sapUiTinyMarginBottom">
-              <m:Label text="Company Code :" class="sapUiTinyMarginEnd" />
-              <m:Link text="{Company/Description} ({Company/Code})" />
-            </m:HBox>
+                    <!-- Description -->
+                    <m:VBox
+                        class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
+                    >
+                        <m:Title text="Description" />
+                        <m:ObjectStatus
+                            text="{Description}"
+                            state="Error"
+                            class="sapMObjectStatusLarge"
+                        />
+                    </m:VBox>
 
-            <!-- Vendor -->
-            <m:HBox renderType="Bare" class="sapUiTinyMarginBottom">
-              <m:Label text="Vendor :" class="sapUiTinyMarginEnd" />
-              <m:Link text="{Vendor/Description} ({Vendor/Number})" />
-            </m:HBox>
-          </m:VBox>
+                    <!-- Document Type -->
+                    <m:VBox
+                        class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
+                        width="450px"
+                    >
+                        <m:Title text="Document Type" />
+                        <m:ObjectStatus
+                            text="{DocumentType_ID}"
+                            class="sapMObjectStatusLarge"
+                        />
+                    </m:VBox>
 
-          <!-- Description -->
-          <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
-            <m:Title text="Description" />
-            <m:ObjectStatus text="{Description}" state="Error" class="sapMObjectStatusLarge"/>
-          </m:VBox>
+                    <!-- Amount -->
+                    <m:VBox
+                        class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
+                    >
+                        <m:Title text="Total Amount" />
+                        <m:ObjectNumber
+                            number="{TotalAmount}"
+                            unit="INR"
+                            state="Success"
+                            class="sapMObjectNumberLarge"
+                        />
+                    </m:VBox>
+                </m:HBox>
 
-          <!-- Document Type -->
-          <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom" width="450px">
-            <m:Title text="Document Type" />
-            <m:ObjectStatus text="{DocumentType_ID}" class="sapMObjectStatusLarge"/>
-          </m:VBox>
-          
-          <!-- Amount -->
-          <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
-            <m:Title text="Total Amount" />
-            <m:ObjectNumber number="{TotalAmount}" unit="INR" state="Success" class="sapMObjectNumberLarge"/>
-          </m:VBox>
-        </m:HBox>
-          
-        <!-- Horizontal Container 2 -->
-        <m:HBox justifyContent="Start" class="sapUiSmallMarginBegin" renderType="Bare">
-        <m:VBox class="sapUiLargeMarginEnd sapUiSmallMarginBottom" width="585px"> 
-          <!-- Created By -->
-          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
-          <m:Label text="Created By :" />
-          <m:Text text="{ parts: ['createdBy'], formatter: '.toProperCase' }" class="sapUiTinyMarginBegin"/>
-          </m:HBox>
+                <!-- Horizontal Container 2 -->
+                <m:HBox
+                    justifyContent="Start"
+                    class="sapUiSmallMarginBegin"
+                    renderType="Bare"
+                >
+                    <m:VBox
+                        class="sapUiLargeMarginEnd sapUiSmallMarginBottom"
+                        width="535px"
+                    >
+                        <!-- Created By -->
+                        <m:HBox
+                            class="sapUiTinyMarginBottom"
+                            renderType="Bare"
+                        >
+                            <m:Label text="Created By :" />
+                            <m:Text
+                                text="{ parts: ['createdBy'], formatter: '.toProperCase' }"
+                                class="sapUiTinyMarginBegin"
+                            />
+                        </m:HBox>
 
-          <!-- Created On -->
-          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
-          <m:Label text="Created On :" />
-          <m:Text text="{createdAt}" class="sapUiTinyMarginBegin" />
-          </m:HBox>
-        </m:VBox>
+                        <!-- Created On -->
+                        <m:HBox
+                            class="sapUiTinyMarginBottom"
+                            renderType="Bare"
+                        >
+                            <m:Label text="Created On :" />
+                            <m:Text
+                                text="{createdAt}"
+                                class="sapUiTinyMarginBegin"
+                            />
+                        </m:HBox>
+                    </m:VBox>
 
-        <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
-          <!-- Modified By -->
-          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
-          <m:Label text="Modified By :" />
-          <m:Text text="{ parts: ['modifiedBy'], formatter: '.toProperCase' }" class="sapUiTinyMarginBegin"/>
-          </m:HBox>
-          <!-- Modified On -->
-          <m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
-          <m:Label text="Modified On :" />
-          <m:Text text="{modifiedAt}" class="sapUiTinyMarginBegin"/>
-          </m:HBox>
-        </m:VBox>
-        </m:HBox>
-      </m:FlexBox>
-    </headerContent>
+                    <m:VBox
+                        class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
+                    >
+                        <!-- Modified By -->
+                        <m:HBox
+                            class="sapUiTinyMarginBottom"
+                            renderType="Bare"
+                        >
+                            <m:Label text="Modified By :" />
+                            <m:Text
+                                text="{ parts: ['modifiedBy'], formatter: '.toProperCase' }"
+                                class="sapUiTinyMarginBegin"
+                            />
+                        </m:HBox>
+                        <!-- Modified On -->
+                        <m:HBox
+                            class="sapUiTinyMarginBottom"
+                            renderType="Bare"
+                        >
+                            <m:Label text="Modified On :" />
+                            <m:Text
+                                text="{modifiedAt}"
+                                class="sapUiTinyMarginBegin"
+                            />
+                        </m:HBox>
+                    </m:VBox>
+                </m:HBox>
+            </m:FlexBox>
+        </headerContent>
 
-    <!-- Sections -->
-    <sections>
-      <ObjectPageSection title="Item Details">
-        <subSections>
-          <ObjectPageSubSection>
-            <blocks>
-              <m:Table items="{Items}" class="sapUxAPObjectPageSubSectionAlignContent">
-                <m:columns>
-                  <m:Column><m:Text text="Item Number" /></m:Column>
-                  <m:Column><m:Text text="Description" /></m:Column>
-                  <m:Column><m:Text text="Quantity" /></m:Column>
-                  <m:Column><m:Text text="UoM" /></m:Column>
-                  <m:Column hAlign="End"><m:Text text="Rate" /></m:Column>
-                  <m:Column hAlign="End"><m:Text text="Amount" /></m:Column>
-                </m:columns>
-                <m:items>
-                  <m:ColumnListItem>
-                    <m:Text text="{ItemNo}" />
-                    <m:Link text="{Description}" />
-                    <m:Text text="{Quantity}" />
-                    <m:Text text="{Uom}" />
-                    <m:ObjectNumber number="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }" unit="INR" />
-                    <m:ObjectNumber number="{ path: 'Amount', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }" unit="INR" />
-                  </m:ColumnListItem>
-                </m:items>
-              </m:Table>
-            </blocks>
-          </ObjectPageSubSection>
-        </subSections>
-      </ObjectPageSection>
-    </sections>
-  </ObjectPageLayout>
+        <!-- Sections -->
+        <sections>
+            <ObjectPageSection title="Header">
+                <ObjectPageSubSection />
+            </ObjectPageSection>
+            <ObjectPageSection title="Item Details">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <m:Table
+                                items="{Items}"
+                                class="sapUxAPObjectPageSubSectionAlignContent"
+                            >
+                                <m:columns>
+                                    <m:Column>
+                                        <m:Text text="Item Number" />
+                                    </m:Column>
+                                    <m:Column>
+                                        <m:Text text="Description" />
+                                    </m:Column>
+                                    <m:Column>
+                                        <m:Text text="Quantity" />
+                                    </m:Column>
+                                    <m:Column>
+                                        <m:Text text="UoM" />
+                                    </m:Column>
+                                    <m:Column hAlign="End">
+                                        <m:Text text="Rate" />
+                                    </m:Column>
+                                    <m:Column hAlign="End">
+                                        <m:Text text="Amount" />
+                                    </m:Column>
+                                </m:columns>
+                                <m:items>
+                                    <m:ColumnListItem>
+                                        <m:HBox>
+                                            <m:Text
+                                                text="{ItemNo}"
+                                                visible="{viewModel>/isDisplayMode}"
+                                            />
+                                            <m:Input
+                                                value="{ItemNo}"
+                                                visible="{viewModel>/isEditMode}"
+                                            />
+                                        </m:HBox>
+                                        <m:HBox>
+                                            <m:Text
+                                                text="{Description}"
+                                                visible="{viewModel>/isDisplayMode}"
+                                            />
+                                            <m:Input
+                                                value="{Description}"
+                                                visible="{viewModel>/isEditMode}"
+                                            />
+                                        </m:HBox>
+                                        <m:HBox>
+                                            <m:Text
+                                                text="{Quantity}"
+                                                visible="{viewModel>/isDisplayMode}"
+                                            />
+                                            <m:Input
+                                                value="{Quantity}"
+                                                visible="{viewModel>/isEditMode}"
+                                            />
+                                        </m:HBox>
+                                        <m:HBox>
+                                            <m:Text
+                                                text="{Uom}"
+                                                visible="{viewModel>/isDisplayMode}"
+                                            />
+                                            <m:Input
+                                                value="{Uom}"
+                                                visible="{viewModel>/isEditMode}"
+                                            />
+                                        </m:HBox>
+                                        <m:HBox justifyContent="End">
+                                            <!-- Display Mode -->
+                                            <m:ObjectNumber
+                                                number="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
+                                                unit="INR"
+                                                visible="{viewModel>/isDisplayMode}"
+                                            />
+
+                                            <!-- Edit Mode -->
+                                            <m:Input
+                                                value="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
+                                                description="INR"
+                                                textAlign="End"
+                                                visible="{viewModel>/isEditMode}"
+                                            />
+                                        </m:HBox>
+
+                                        <m:HBox justifyContent="End">
+                                            <m:ObjectNumber
+                                                number="{ path: 'Amount', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
+                                                unit="INR"
+                                            />
+                                        </m:HBox>
+                                    </m:ColumnListItem>
+                                </m:items>
+                            </m:Table>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+        </sections>
+        <footer>
+            <m:OverflowToolbar visible="{viewModel>/isEditMode}">
+                <m:ToolbarSpacer />
+                <m:Button
+                    text="Save"
+                    type="Emphasized"
+                    press="onSave"
+                />
+                <m:Button
+                    text="Cancel"
+                    press="onCancel"
+                />
+            </m:OverflowToolbar>
+        </footer>
+    </ObjectPageLayout>
 </mvc:View>
