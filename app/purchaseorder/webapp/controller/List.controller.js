@@ -97,7 +97,7 @@ sap.ui.define([
     onFilterChange: function () {
       this._updateLabelsAndTable();
     },
-
+    
     onAfterVariantLoad: function () {
       this._updateLabelsAndTable();
     },

@@ -1,7 +1,28 @@
-<mvc:View controllerName="com.ycl.purchaseorder.controller.App"
-    displayBlock="true"
-    xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
-    <App id="app">
-    </App>
+<mvc:View
+  controllerName="com.ycl.purchaseorder.controller.App"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.f"
+  xmlns:m="sap.m"
+  xmlns:layout="sap.ui.layout"
+  displayBlock="true"
+  height="100%">
+
+  <m:VBox fitContainer="true">
+
+    <ShellBar
+      homeIcon="https://www.sap.com/dam/application/shared/logos/sap-logo-svg.svg.adapt.svg/1493030643828.svg"
+      title="Purchase Order App"
+      showCopilot="true"
+      showProductSwitcher="true">
+      
+      <profile>
+        <m:Avatar initials="AR"/>
+      </profile>
+
+    </ShellBar>
+
+    <m:App id="app" />
+
+  </m:VBox>
+
 </mvc:View>

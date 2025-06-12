@@ -121,17 +121,16 @@
                     </m:VBox>
 
                     <!-- Amount -->
-                    <m:VBox
-                        class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
-                    >
-                        <m:Title text="Total Amount" />
-                        <m:ObjectNumber
-                            number="{TotalAmount}"
-                            unit="INR"
-                            state="Success"
-                            class="sapMObjectNumberLarge"
-                        />
+                    <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
+                    <m:Title text="Total Amount" />
+                    <m:ObjectNumber
+                        number= "{ path: 'Items', formatter: '.formatTotalAmountFromItems'  }" 
+                        unit="INR"
+                        state="Success"
+                        class="sapMObjectNumberLarge"
+                    />
                     </m:VBox>
+
                 </m:HBox>
 
                 <!-- Horizontal Container 2 -->
@@ -198,6 +197,63 @@
                 </m:HBox>
             </m:FlexBox>
         </headerContent>
+
+        <sections>
+            <ObjectPageSection title="Purchase Order Details">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <forms:SimpleForm
+                                id="SimpleFormDisplay480_Trial"
+                                editable="true"
+                                layout="ResponsiveGridLayout"
+                                title="Purchase Order Details"
+                                labelSpanXL="4"
+                                labelSpanL="4"
+                                labelSpanM="4"
+                                labelSpanS="12"
+                                adjustLabelSpan="false"
+                                emptySpanXL="0"
+                                emptySpanL="0"
+                                emptySpanM="0"
+                                emptySpanS="0"
+                                columnsXL="3"
+                                columnsL="2"
+                                columnsM="2"
+                                singleContainerFullSize="false">
+
+                                <forms:content>
+                                    <!-- PO Number -->
+                                    <m:Label text="PO Number" />
+                                    <m:Text text="{ID}" />
+
+                                    <!-- Company Code -->
+                                    <m:Label text="Company Code" />
+                                    <m:Text text="{Company/Description}({Company/Code})" visible="{viewModel>/isDisplayMode}" />
+                                    <m:Input value="{Company/Description}({Company/Code})" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Company Code" />
+
+                                    <!-- Vendor Description -->
+                                    <m:Label text="Vendor" />
+                                    <m:Text text="{Vendor/Description}({Vendor/Number})" visible="{viewModel>/isDisplayMode}" />
+                                    <m:Input value="{Vendor/Description}({Vendor/Number})" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Vendor Description" />
+                                    
+                                    <!-- Description -->
+                                    <m:Label text="Description" />
+                                    <m:Text text="{Description}" visible="{viewModel>/isDisplayMode}" />
+                                    <m:Input value="{Description}" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Description" />
+
+                                    <!-- Document Type -->
+                                    <m:Label text="Document Type" />
+                                    <m:Text text="{DocumentType_ID}" visible="{viewModel>/isDisplayMode}" />
+                                    <m:Input value="{DocumentType_ID}" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Document Type" />
+                                </forms:content>
+                            </forms:SimpleForm>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+        </sections>
+
 
         <!-- Sections -->
         <sections>
@@ -293,10 +349,11 @@
 
                                         <m:HBox justifyContent="End">
                                             <m:ObjectNumber
-                                                number="{ path: 'Amount', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
+                                                number="{= (${Quantity} * ${Rate}).toFixed(2) }"
                                                 unit="INR"
                                             />
                                         </m:HBox>
+
                                     </m:ColumnListItem>
                                 </m:items>
                             </m:Table>
