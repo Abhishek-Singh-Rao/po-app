@@ -2,8 +2,9 @@ sap.ui.define([
   "sap/ui/core/mvc/Controller",
   "sap/ui/model/json/JSONModel",
   "sap/m/MessageBox",
+  "sap/m/MessageToast",
   "sap/ui/core/routing/History"
-], function (Controller, JSONModel, History) {
+], function (Controller, JSONModel, MessageBox, MessageToast, History) {
   "use strict";
 
   return Controller.extend("com.ycl.purchaseorder.controller.Detail", {
@@ -60,6 +61,11 @@ sap.ui.define([
 
     // Cancel Button
     onCancel: function () {
+      const oView = this.getView();
+      const oModel = oView.getModel(); // OData V2 model
+      if(oModel.hasPendingChanges()){
+        oModel.resetChanges();
+      }
       this.setMode("display")
     },
 
@@ -81,64 +87,34 @@ sap.ui.define([
       return sText.charAt(0).toUpperCase() + sText.slice(1).toLowerCase();
     },
 
-    // Save
-  //   onSave: function () {
-  //     const oView = this.getView();
-  //     const oModel = oView.getModel(); // OData V2 model
-  //     const oContext = oView.getBindingContext(); // PO Header context (e.g., /PurchaseOrder(1001))
-  
-  //     if (!oContext) {
-  //         MessageBox.error("No purchase order selected.");
-  //         return;
-  //     }
-  
-  //     const sPOPath = oContext.getPath(); // e.g., /PurchaseOrder(1001)
-  //     const oUpdatedPOData = oModel.getProperty(sPOPath); // Get updated PO header
-  //     const aUpdatedItems = oModel.getProperty(sPOPath + "/Items"); // Get updated child items
-  
-  //     // Prepare a counter to track async updates
-  //     let iPendingUpdates = aUpdatedItems.length + 1;
-  //     let bErrorOccurred = false;
-  
-  //     const fnCheckFinish = () => {
-  //         iPendingUpdates--;
-  //         if (iPendingUpdates === 0) {
-  //             if (bErrorOccurred) {
-  //                 MessageBox.error("Some updates failed. Please check and try again.");
-  //             } else {
-  //                 MessageToast.show("Purchase Order saved successfully");
-  //                 // Toggle back to display mode
-  //                 oView.getModel("viewModel").setProperty("/isEditMode", false);
-  //                 oView.getModel("viewModel").setProperty("/isDisplayMode", true);
-  //                 oModel.refresh(); // Optional: to reload the updated values
-  //             }
-  //         }
-  //     };
-  
-  //     // 1. Update PO Header
-  //     oModel.update(sPOPath, oUpdatedPOData, {
-  //         success: () => fnCheckFinish(),
-  //         error: (err) => {
-  //             console.error("Header update failed", err);
-  //             bErrorOccurred = true;
-  //             fnCheckFinish();
-  //         }
-  //     });
-  
-  //     // 2. Update each PO Item (child entity)
-  //     aUpdatedItems.forEach((item) => {
-  //         const sItemPath = `/PurchaseOrderItems(${item.ID})`; // Ensure ID is correct
-  //         oModel.update(sItemPath, item, {
-  //             success: () => fnCheckFinish(),
-  //             error: (err) => {
-  //                 console.error("Item update failed", err);
-  //                 bErrorOccurred = true;
-  //                 fnCheckFinish();
-  //             }
-  //         });
-  //     });
-  // }
-  
     
+    onSave: function () {
+      const oView = this.getView();
+      const oModel = oView.getModel(); // OData V2 model
+      const oContext = oView.getBindingContext(); // PO Header context (e.g., /PurchaseOrder(1001))
+  
+      if (!oContext) {
+          MessageBox.error("No purchase order selected.");
+          return;
+      }
+
+      if(oModel.hasPendingChanges()){
+        oView.setBusy(true)
+        oModel.submitChanges({
+          success: ()=>{
+            MessageBox.success("Changes Saved Successfully")
+            oView.setBusy(false)
+            this.setMode("display")
+          },
+          error: ()=>{
+            oView.setBusy(false)
+          }
+        })
+
+      } else {
+        MessageToast.show("Nothing has been changed yet")
+      }
+  
+    }
   });
 });

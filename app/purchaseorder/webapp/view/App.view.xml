@@ -13,7 +13,9 @@
       homeIcon="https://www.sap.com/dam/application/shared/logos/sap-logo-svg.svg.adapt.svg/1493030643828.svg"
       title="Purchase Order App"
       showCopilot="true"
-      showProductSwitcher="true">
+      showProductSwitcher="true"
+      showNotifications="true"
+			notificationsNumber="2">
       
       <profile>
         <m:Avatar initials="AR"/>
