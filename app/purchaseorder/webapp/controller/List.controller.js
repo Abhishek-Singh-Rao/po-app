@@ -232,9 +232,28 @@ sap.ui.define([
     },
     
     onOpenCreateDialog: function () {
-      const oRouter = this.getOwnerComponent().getRouter();
-      oRouter.navTo("RouteCreate");
+  const oModel = this.getView().getModel();
+
+  oModel.read("/PurchaseOrder", {
+    urlParameters: {
+      "$orderby": "ID desc",
+      "$top": 1
+    },
+    success: (oData) => {
+      let nextId = 1;
+      if (oData.results.length > 0) {
+        nextId = oData.results[0].ID + 1;
+      }
+      this.getOwnerComponent().getRouter().navTo("RouteCreate", {
+        ID: nextId // pass new ID
+      });
+    },
+    error: () => {
+      sap.m.MessageToast.show("Failed to generate new PO ID");
     }
+  });
+}
+
     
   });
 });

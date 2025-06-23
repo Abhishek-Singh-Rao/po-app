@@ -482,7 +482,7 @@
                 <m:Button
                     text="Save"
                     type="Emphasized"
-                    press="onSave"
+                    press=".showUserPrompt"
                 />
                 <m:Button
                     text="Cancel"

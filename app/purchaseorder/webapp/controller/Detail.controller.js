@@ -221,55 +221,67 @@ sap.ui.define([
             onSave: function () {
                   const oView = this.getView();
                   const oModel = oView.getModel();
-              
+                  const oContext = oView.getBindingContext();
+                
                   if (!oModel.hasPendingChanges("changes")) {
-                      MessageToast.show("No changes to save.");
-                      return;
+                    MessageToast.show("No changes to save.");
+                    return;
                   }
-              
+                
+                  const sPath = oContext.getPath();
+                  const now = new Date().toISOString(); // current timestamp
+                  const isNew = !oModel.getProperty(sPath + "/ID"); // new PO if no ID
+                
+                  // ✅ Set audit fields
+                  if (isNew) {
+                    oModel.setProperty(sPath + "/createdAt", now);
+                    oModel.setProperty(sPath + "/createdBy", this._currentUserName);
+                    oModel.setProperty(sPath + "/modifiedAt", now);
+                    oModel.setProperty(sPath + "/modifiedBy", this._currentUserName);
+                  } else {
+                    oModel.setProperty(sPath + "/modifiedAt", now);
+                    oModel.setProperty(sPath + "/modifiedBy", this._currentUserName);
+                  }
+                
                   oView.setBusy(true);
-              
+                
                   oModel.submitChanges({
-                      groupId: "changes",
-                      success: () => {
-                          oView.setBusy(false);
-                          MessageToast.show("Changes saved.");
-                          this.setMode("display");
-              
-                          // Get the new PO_ID if it was created
-                          const oContext = oView.getBindingContext();
-                          const PO_ID = oContext && oContext.getProperty("ID");
-              
-                          if (PO_ID) {
-                              this.sPurchaseOrder = PO_ID; // store for item creation
-              
-                              // Rebind the view to get fresh data
-                              const sPath = "/PurchaseOrder(" + PO_ID + ")";
-                              oView.bindElement({
-                                  path: sPath,
-                                  parameters: {
-                                      expand: "Company,Vendor,DocumentType"
-                                  }
-                              });
-              
-                              // Refresh table binding
-                              const oTable = this.byId("ItemsTable");
-                              const oBinding = oTable.getBinding("items");
-                              if (oBinding) {
-                                  oBinding.refresh();
-                              }
+                    groupId: "changes",
+                    success: () => {
+                      oView.setBusy(false);
+                      MessageToast.show("Changes saved.");
+                      this.setMode("display");
+                
+                      // Get PO_ID if created
+                      const PO_ID = oContext && oContext.getProperty("ID");
+                
+                      if (PO_ID) {
+                        this.sPurchaseOrder = PO_ID;
+                
+                        // Rebind to get fresh data
+                        const sRebindPath = "/PurchaseOrder(" + PO_ID + ")";
+                        oView.bindElement({
+                          path: sRebindPath,
+                          parameters: {
+                            expand: "Company,Vendor,DocumentType"
                           }
-              
-                          // Refresh entire model to ensure delete visibility
-                          oModel.refresh(true);
-                      },
-                      error: () => {
-                          oView.setBusy(false);
-                          MessageBox.error("Failed to save changes.");
+                        });
+                
+                        const oTable = this.byId("ItemsTable");
+                        const oBinding = oTable.getBinding("items");
+                        if (oBinding) {
+                          oBinding.refresh();
+                        }
                       }
+                
+                      oModel.refresh(true); // full refresh
+                    },
+                    error: () => {
+                      oView.setBusy(false);
+                      MessageBox.error("Failed to save changes.");
+                    }
                   });
-              }
-              ,
+                },
 
             // Create New Record
             onCreateRow: function () {
@@ -391,48 +403,48 @@ sap.ui.define([
             onDeleteRow: function () {
                   const oTable = this.byId("ItemsTable");
                   const aSelectedItems = oTable.getSelectedItems();
-              
+
                   if (aSelectedItems.length === 0) {
-                      MessageToast.show("Please select at least one row to delete.");
-                      return;
+                        MessageToast.show("Please select at least one row to delete.");
+                        return;
                   }
-              
+
                   MessageBox.confirm(`Are you sure you want to delete ${aSelectedItems.length} item(s)?`, {
-                      title: "Confirm Deletion",
-                      actions: [MessageBox.Action.YES, MessageBox.Action.NO],
-                      emphasizedAction: MessageBox.Action.YES,
-                      onClose: (sAction) => {
-                          if (sAction === MessageBox.Action.YES) {
-                              const oModel = this.getView().getModel();
-                              const oBinding = oTable.getBinding("items");
-              
-                              aSelectedItems.forEach(oItem => {
-                                  const oCtx = oItem.getBindingContext();
-                                  const sPath = oCtx.getPath();
-              
-                                  // Check if the context is transient (i.e., unsaved new row)
-                                  if (oCtx.isTransient && oCtx.isTransient()) {
-                                      // Delete directly from the list binding
-                                      oBinding.remove(oCtx);
-                                  } else {
-                                      // For existing (backend) rows, mark for deletion
-                                      oModel.remove(sPath, {
-                                          groupId: "changes",
-                                          inactive: true
-                                      });
-                                  }
-                              });
-              
-                              MessageToast.show(`${aSelectedItems.length} item(s) marked for deletion. Press Save to confirm or Cancel to undo.`);
-                          }
-                      }
+                        title: "Confirm Deletion",
+                        actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                        emphasizedAction: MessageBox.Action.YES,
+                        onClose: (sAction) => {
+                              if (sAction === MessageBox.Action.YES) {
+                                    const oModel = this.getView().getModel();
+                                    const oBinding = oTable.getBinding("items");
+
+                                    aSelectedItems.forEach(oItem => {
+                                          const oCtx = oItem.getBindingContext();
+                                          const sPath = oCtx.getPath();
+
+                                          // Check if the context is transient (i.e., unsaved new row)
+                                          if (oCtx.isTransient && oCtx.isTransient()) {
+                                                // Delete directly from the list binding
+                                                oBinding.remove(oCtx);
+                                          } else {
+                                                // For existing (backend) rows, mark for deletion
+                                                oModel.remove(sPath, {
+                                                      groupId: "changes",
+                                                      inactive: true
+                                                });
+                                          }
+                                    });
+
+                                    MessageToast.show(`${aSelectedItems.length} item(s) marked for deletion. Press Save to confirm or Cancel to undo.`);
+                              }
+                        }
                   });
-              },
+            },
 
             formatTableMode: function (isEditMode) {
-            return isEditMode ? "MultiSelect" : "None";
+                  return isEditMode ? "MultiSelect" : "None";
             },
-              
+
 
             _onCreateMatched: function () {
                   const oView = this.getView();
@@ -477,7 +489,36 @@ sap.ui.define([
                   if (oTotal) {
                         oTotal.setNumber("0.00");
                   }
+            },
+
+            showUserPrompt: function () {
+                  if (!this._oUserDialog) {
+                        Fragment.load({
+                              name: "com.ycl.purchaseorder.fragment.UserPrompt",
+                              controller: this
+                        }).then((oDialog) => {
+                              this._oUserDialog = oDialog;
+                              this.getView().addDependent(oDialog);
+                              oDialog.open();
+                        });
+                  } else {
+                        this._oUserDialog.open();
+                  }
+            },
+
+            onUserConfirm: function () {
+                  const sName = sap.ui.getCore().byId("userInput").getValue();
+                  this._currentUserName = sName || "Anonymous";
+                  this._oUserDialog.close();
+
+                  // Now trigger save
+                  this.onSave();
+            },
+
+            onUserDialogClosed: function () {
+                  sap.ui.getCore().byId("userInput").setValue("");
             }
+
 
       });
 });

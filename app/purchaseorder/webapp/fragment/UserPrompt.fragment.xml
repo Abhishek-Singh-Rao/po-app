@@ -1,0 +1,16 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+  <Dialog
+    id="userDialog"
+    title="Enter Your Name"
+    stretch="{= ${device>/system/phone} }"
+    afterClose=".onUserDialogClosed"
+  >
+    <VBox class="sapUiSmallMargin">
+      <Label text="Please enter your name:" />
+      <Input id="userInput" placeholder="Your name" />
+    </VBox>
+    <beginButton>
+      <Button text="OK" press=".onUserConfirm" />
+    </beginButton>
+  </Dialog>
+</core:FragmentDefinition>
