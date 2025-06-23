@@ -72,7 +72,10 @@
           "defaultBindingMode": "TwoWay",
           "useBatch": true,
           "defaultCountMode": "None",
-          "defaultUpdateMethod": "PUT"
+          "defaultUpdateMethod": "PUT",
+          "refreshAfterChange": true,
+          "updateGroupId": "changes",  
+          "groupId": "changes"
         }
       }
     },
@@ -94,6 +97,11 @@
         {
           "pattern": "Detail/{ID}",
           "name": "RouteDetail",
+          "target": "Detail"
+        },
+        {
+          "pattern": "Create",
+          "name": "RouteCreate",
           "target": "Detail"
         }
       ],

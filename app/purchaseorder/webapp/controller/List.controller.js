@@ -229,6 +229,12 @@ sap.ui.define([
           }
         }
       });
+    },
+    
+    onOpenCreateDialog: function () {
+      const oRouter = this.getOwnerComponent().getRouter();
+      oRouter.navTo("RouteCreate");
     }
+    
   });
 });

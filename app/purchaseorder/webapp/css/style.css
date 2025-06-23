@@ -1,6 +1,14 @@
-/* Enter your custom styles here */
+/* Title style */
 .customTitle {
-    color: #0A6ED1;
-    font-weight: bold;
-  }
-  
+  color: #0A6ED1;
+  font-weight: bold;
+}
+
+/* Fix for sap.m.Select and sap.m.Input alignment */
+.sapMSlt.noPaddingInput .sapMSltInner,
+.sapMInputBase.noPaddingInput .sapMInputBaseInner {
+  padding: 0 0.5rem !important;
+  height: 2.25rem !important;
+  line-height: 2.25rem !important;
+  box-sizing: border-box !important;
+}

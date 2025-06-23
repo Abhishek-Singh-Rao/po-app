@@ -1,30 +1,35 @@
 <mvc:View
   controllerName="com.ycl.purchaseorder.controller.App"
   xmlns:mvc="sap.ui.core.mvc"
-  xmlns="sap.f"
-  xmlns:m="sap.m"
+  xmlns="sap.m"
+  xmlns:f="sap.f"
   xmlns:layout="sap.ui.layout"
   displayBlock="true"
   height="100%">
 
-  <m:VBox fitContainer="true">
+  <VBox fitContainer="true">
+    <f:ShellBar
+  title="Purchase Order App"
+  homeIcon="https://www.sap.com/dam/application/shared/logos/sap-logo-svg.svg.adapt.svg/1493030643828.svg"
+  showCopilot="true"
+  showNotifications="true"
+  notificationsNumber="2"
+  showProductSwitcher="true">
 
-    <ShellBar
-      homeIcon="https://www.sap.com/dam/application/shared/logos/sap-logo-svg.svg.adapt.svg/1493030643828.svg"
-      title="Purchase Order App"
-      showCopilot="true"
-      showProductSwitcher="true"
-      showNotifications="true"
-			notificationsNumber="2">
-      
-      <profile>
-        <m:Avatar initials="AR"/>
-      </profile>
+  <f:additionalContent>
+    <Button
+      icon="{= ${themeModel>/isDark} ? 'sap-icon://light-mode' : 'sap-icon://dark-mode'}"
+      tooltip="{= ${themeModel>/isDark} ? 'Light Mode' : 'Dark Mode'}"
+      press=".onToggleTheme"
+      type="Transparent" />
+  </f:additionalContent>
 
-    </ShellBar>
+  <f:profile>
+    <Avatar initials="AR" />
+  </f:profile>
+</f:ShellBar>
 
-    <m:App id="app" />
 
-  </m:VBox>
-
+    <App id="app" />
+  </VBox>
 </mvc:View>

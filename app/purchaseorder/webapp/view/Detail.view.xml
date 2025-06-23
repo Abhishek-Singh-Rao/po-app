@@ -1,36 +1,38 @@
 <mvc:View
     controllerName="com.ycl.purchaseorder.controller.Detail"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.uxap"
+    xmlns:uxap="sap.uxap"
     xmlns:m="sap.m"
     xmlns:core="sap.ui.core"
     xmlns:forms="sap.ui.layout.form"
     height="100%"
 >
-    <ObjectPageLayout
+    <uxap:ObjectPageLayout
         id="ObjectPageLayout"
         upperCaseAnchorBar="false"
         showFooter="true"
     >
         <!-- Object Page Header Title -->
-        <headerTitle>
-            <ObjectPageDynamicHeaderTitle>
-                <expandedHeading>
+        <uxap:headerTitle>
+            <uxap:ObjectPageDynamicHeaderTitle>
+                <uxap:expandedHeading>
                     <m:VBox>
-                        <m:Title text="{Description}" />
-                        <m:Text text="PO-{ID}" />
+                        <m:Title
+                            text="{= ${viewModel>/isEditMode} &amp;&amp; !${ID} ? 'New Purchase Order' : ${Description} }" />
+                        <m:Text
+                            text="{= ${viewModel>/isEditMode} &amp;&amp; !${ID} ? '' : 'PO-' + ${ID} }" />
                     </m:VBox>
-                </expandedHeading>
+                </uxap:expandedHeading>
 
-                <snappedHeading>
-                    <m:Title text="{Description}" />
-                </snappedHeading>
+                <uxap:snappedHeading>
+                    <m:Title text="{= ${viewModel>/isEditMode} &amp;&amp; !${ID} ? 'New Purchase Order' : ${Description} }" />
+                </uxap:snappedHeading>
 
-                <snappedTitleOnMobile>
-                    <m:Title text="{Description}" />
-                </snappedTitleOnMobile>
+                <uxap:snappedTitleOnMobile>
+                    <m:Title text="{= ${viewModel>/isEditMode} &amp;&amp; !${ID} ? 'New Purchase Order' : ${Description} }" />
+                </uxap:snappedTitleOnMobile>
 
-                <actions>
+                <uxap:actions>
                     <!-- <m:Button icon="sap-icon://nav-back" press=".onNavBack" tooltip="Back" /> -->
                     <m:Button
                         text="Edit"
@@ -38,12 +40,12 @@
                         press="onEdit"
                         visible="{viewModel>/isDisplayMode}"
                     />
-                </actions>
-            </ObjectPageDynamicHeaderTitle>
-        </headerTitle>
+                </uxap:actions>
+            </uxap:ObjectPageDynamicHeaderTitle>
+        </uxap:headerTitle>
 
         <!-- Object Page Header Content -->
-        <headerContent>
+        <uxap:headerContent>
             <m:FlexBox
                 wrap="Wrap"
                 fitContainer="true"
@@ -73,7 +75,7 @@
                             class="sapUiTinyMarginBottom"
                         >
                             <m:Label
-                                text="Company Code :"
+                                text="Company Name :"
                                 class="sapUiTinyMarginEnd"
                             />
                             <m:Link
@@ -87,7 +89,7 @@
                             class="sapUiTinyMarginBottom"
                         >
                             <m:Label
-                                text="Vendor :"
+                                text="Vendor Name :"
                                 class="sapUiTinyMarginEnd"
                             />
                             <m:Link
@@ -100,7 +102,7 @@
                     <m:VBox
                         class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
                     >
-                        <m:Title text="Description" />
+                        <m:Title text="PO Description" />
                         <m:ObjectStatus
                             text="{Description}"
                             state="Error"
@@ -113,7 +115,7 @@
                         class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
                         width="450px"
                     >
-                        <m:Title text="Document Type" />
+                        <m:Title text="PO Document Type" />
                         <m:ObjectStatus
                             text="{DocumentType_ID}"
                             class="sapMObjectStatusLarge"
@@ -121,16 +123,18 @@
                     </m:VBox>
 
                     <!-- Amount -->
-                    <m:VBox class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom">
-                    <m:Title text="Total Amount" />
-                    <m:ObjectNumber
-                        number= "{ path: 'Items', formatter: '.formatTotalAmountFromItems'  }" 
-                        unit="INR"
-                        state="Success"
-                        class="sapMObjectNumberLarge"
-                    />
+                    <m:VBox
+                        class="sapUiLargeMarginBegin sapUiLargeMarginEnd sapUiSmallMarginBottom"
+                    >
+                        <m:Title text="Total Amount" />
+                        <m:ObjectNumber
+                            id="totalAmountNumber"
+                            number="0.00"
+                            unit="INR"
+                            state="Success"
+                            class="sapMObjectNumberLarge"
+                        />
                     </m:VBox>
-
                 </m:HBox>
 
                 <!-- Horizontal Container 2 -->
@@ -196,13 +200,13 @@
                     </m:VBox>
                 </m:HBox>
             </m:FlexBox>
-        </headerContent>
+        </uxap:headerContent>
 
-        <sections>
-            <ObjectPageSection title="Purchase Order Details">
-                <subSections>
-                    <ObjectPageSubSection>
-                        <blocks>
+        <uxap:sections>
+            <uxap:ObjectPageSection title="Purchase Order Details">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <uxap:blocks>
                             <forms:SimpleForm
                                 id="SimpleFormDisplay480_Trial"
                                 editable="true"
@@ -220,54 +224,158 @@
                                 columnsXL="3"
                                 columnsL="2"
                                 columnsM="2"
-                                singleContainerFullSize="false">
-
+                                singleContainerFullSize="false"
+                            >
                                 <forms:content>
                                     <!-- PO Number -->
-                                    <m:Label text="PO Number" />
+                                    <m:Label text="Purchase Order No." />
                                     <m:Text text="{ID}" />
 
                                     <!-- Company Code -->
-                                    <m:Label text="Company Code" />
-                                    <m:Text text="{Company/Description}({Company/Code})" visible="{viewModel>/isDisplayMode}" />
-                                    <m:Input value="{Company/Description}({Company/Code})" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Company Code" />
+                                    <m:Label text="Company Name" />
+                                    <m:HBox>
+                                        <m:Text
+                                            text="{Company/Description}({Company/Code})"
+                                            visible="{viewModel>/isDisplayMode}"
+                                        />
+                                        <m:Select
+                                            visible="{viewModel>/isEditMode}"
+                                            selectedKey="{Company/Code}"
+                                            items="{/Company}"
+                                            width="13rem"
+                                            
+                                        >
+                                            <core:Item
+                                                key="{Code}"
+                                                text="{Description}({Code})"
+                                            />
+                                        </m:Select>
+                                    </m:HBox>
 
                                     <!-- Vendor Description -->
-                                    <m:Label text="Vendor" />
-                                    <m:Text text="{Vendor/Description}({Vendor/Number})" visible="{viewModel>/isDisplayMode}" />
-                                    <m:Input value="{Vendor/Description}({Vendor/Number})" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Vendor Description" />
-                                    
+                                    <m:Label text="Vendor Name" />
+                                    <m:HBox>
+                                    <m:Text
+                                        text="{Vendor/Description}({Vendor/Number})"
+                                        visible="{viewModel>/isDisplayMode}"
+                                    />
+                                    <m:Input
+                                        id="vendorInput"
+                                        visible="{viewModel>/isEditMode}"
+                                        width="13rem"
+                                        value="{Vendor/Description}"
+                                        showValueHelp="true"
+                                        valueHelpRequest=".onVendorValueHelp"
+                                        placeholder="Select Vendor"
+                                    />
+                                    </m:HBox>
+
                                     <!-- Description -->
-                                    <m:Label text="Description" />
-                                    <m:Text text="{Description}" visible="{viewModel>/isDisplayMode}" />
-                                    <m:Input value="{Description}" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Description" />
+                                    <m:Label text="PO Description" />
+                                    <m:HBox>
+                                    <m:Text
+                                        text="{Description}"
+                                        visible="{viewModel>/isDisplayMode}"
+                                    />
+                                    <m:Input
+                                        value="{Description}"
+                                        width="13rem"
+                                        visible="{viewModel>/isEditMode}"
+                                        placeholder="Enter Description"
+                                    />
+                                    </m:HBox>
 
                                     <!-- Document Type -->
                                     <m:Label text="Document Type" />
-                                    <m:Text text="{DocumentType_ID}" visible="{viewModel>/isDisplayMode}" />
-                                    <m:Input value="{DocumentType_ID}" visible="{viewModel>/isEditMode}" width="100%" placeholder="Enter Document Type" />
+                                    <m:HBox>
+                                    <m:Text
+                                        text="{= ${DocumentType_ID} + ' - ' + ${DocumentType/Description} }"
+                                        visible="{viewModel>/isDisplayMode}"
+                                    />
+                                    <m:Select
+                                        visible="{viewModel>/isEditMode}"
+                                        width="13rem"
+                                        selectedKey="{DocumentType_ID}"
+                                        items="{
+                                            path: '/DocumentType',
+                                            parameters: {
+                                                $orderby: 'ID'
+                                            }
+                                        }"
+                                    >
+                                        <core:Item
+                                            key="{ID}"
+                                            text="{ID}-{Description}"
+                                        />
+                                    </m:Select>
+                                    </m:HBox>
                                 </forms:content>
                             </forms:SimpleForm>
-                        </blocks>
-                    </ObjectPageSubSection>
-                </subSections>
-            </ObjectPageSection>
-        </sections>
-
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+        </uxap:sections>
 
         <!-- Sections -->
-        <sections>
-            <ObjectPageSection title="Header">
-                <ObjectPageSubSection />
-            </ObjectPageSection>
-            <ObjectPageSection title="Item Details">
-                <subSections>
-                    <ObjectPageSubSection>
-                        <blocks>
+        <uxap:sections>
+            <uxap:ObjectPageSection title="Header">
+                <uxap:ObjectPageSubSection />
+            </uxap:ObjectPageSection>
+            <uxap:ObjectPageSection title="Items">
+                <uxap:subSections>
+                    <uxap:ObjectPageSubSection>
+                        <!-- <actions>
+                            <m:HBox
+                                justifyContent="SpaceBetween"
+                                width="100%"
+                            >
+                                <m:Title
+                                    text="ITEM DETAILS"
+                                    titleStyle="H4"
+                                />
+                                <m:HBox
+                                    visible="{viewModel>/isEditMode}"
+                                    alignItems="Center"
+                                >
+                                    <m:Button
+                                        text="Add"
+                                        press=".onCreateRow"
+                                        type="Transparent"
+                                    />
+                                    <m:Button
+                                        text="Delete"
+                                        press=".onDeleteRow"
+                                        type="Transparent"
+                                    />
+                                </m:HBox>
+                            </m:HBox>
+                        </actions> -->
+                        <uxap:blocks>
                             <m:Table
-                                items="{Items}"
+                                id="ItemsTable"
+                                mode="{ path: 'viewModel>/isEditMode', formatter: '.formatTableMode' }"
+                                includeItemInSelection="true"
+                                items="{ path: 'Items' }"
                                 class="sapUxAPObjectPageSubSectionAlignContent"
                             >
+                                <m:headerToolbar>
+                                    <m:OverflowToolbar>
+                                        <m:ToolbarSpacer />
+                                        <m:Button
+                                            text="Add"
+                                            press=".onCreateRow"
+                                            type="Transparent"
+                                            visible="{viewModel>/isEditMode}"
+                                        />
+                                        <m:Button
+                                            text="Delete"
+                                            press=".onDeleteRow"
+                                            type="Transparent"
+                                            visible="{viewModel>/isEditMode}"
+                                        />
+                                    </m:OverflowToolbar>
+                                </m:headerToolbar>
                                 <m:columns>
                                     <m:Column>
                                         <m:Text text="Item Number" />
@@ -289,80 +397,86 @@
                                     </m:Column>
                                 </m:columns>
                                 <m:items>
-                                    <m:ColumnListItem>
-                                        <m:HBox>
-                                            <m:Text
-                                                text="{ItemNo}"
-                                                visible="{viewModel>/isDisplayMode}"
-                                            />
-                                            <m:Input
-                                                value="{ItemNo}"
-                                                visible="{viewModel>/isEditMode}"
-                                            />
-                                        </m:HBox>
-                                        <m:HBox>
-                                            <m:Text
-                                                text="{Description}"
-                                                visible="{viewModel>/isDisplayMode}"
-                                            />
-                                            <m:Input
-                                                value="{Description}"
-                                                visible="{viewModel>/isEditMode}"
-                                            />
-                                        </m:HBox>
-                                        <m:HBox>
-                                            <m:Text
-                                                text="{Quantity}"
-                                                visible="{viewModel>/isDisplayMode}"
-                                            />
-                                            <m:Input
-                                                value="{Quantity}"
-                                                visible="{viewModel>/isEditMode}"
-                                            />
-                                        </m:HBox>
-                                        <m:HBox>
-                                            <m:Text
-                                                text="{Uom}"
-                                                visible="{viewModel>/isDisplayMode}"
-                                            />
-                                            <m:Input
-                                                value="{Uom}"
-                                                visible="{viewModel>/isEditMode}"
-                                            />
-                                        </m:HBox>
-                                        <m:HBox justifyContent="End">
-                                            <!-- Display Mode -->
-                                            <m:ObjectNumber
-                                                number="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
-                                                unit="INR"
-                                                visible="{viewModel>/isDisplayMode}"
-                                            />
+                                    <m:ColumnListItem visible="{= !${__deleted} }">
+                                        <m:cells>
+                                            <m:HBox justifyContent="End" width="4rem">
+                                                <m:Text
+                                                    text="{ItemNo}"
+                                                />
+                                            </m:HBox>
+                                            <m:HBox>
+                                                <m:Text
+                                                    text="{Description}"
+                                                    visible="{viewModel>/isDisplayMode}"
+                                                />
+                                                <m:Input
+                                                    value="{Description}"
+                                                     width="10rem"
+                                                    visible="{viewModel>/isEditMode}"
+                                                    placeholder="Enter Description"
+                                                />
+                                            </m:HBox>
+                                            <m:HBox justifyContent="End" width="3rem">
+                                                <m:Text
+                                                    text="{Quantity}"
+                                                    visible="{viewModel>/isDisplayMode}"
+                                                />
+                                                <m:Input
+                                                    value="{Quantity}"
+                                                    width="3rem"
+                                                    textAlign="End"
+                                                    liveChange=".onItemValueChange"
+                                                    visible="{viewModel>/isEditMode}"
+                                                    placeholder="Enter Quantity"
+                                                />
+                                            </m:HBox>
+                                            <m:HBox>
+                                                <m:Text
+                                                    text="{Uom}"
+                                                    visible="{viewModel>/isDisplayMode}"
+                                                />
+                                                <m:Input
+                                                    value="{Uom}"
+                                                     width="3rem"
+                                                    visible="{viewModel>/isEditMode}"
+                                                     placeholder="Enter Unit"
+                                                />
+                                            </m:HBox>
+                                            <m:HBox justifyContent="End" width="100%">
+                                                <!-- Display Mode -->
+                                                <m:ObjectNumber
+                                                    number="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
+                                                    unit="INR"
+                                                    visible="{viewModel>/isDisplayMode}"
+                                                />
 
-                                            <!-- Edit Mode -->
-                                            <m:Input
-                                                value="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
-                                                description="INR"
-                                                textAlign="End"
-                                                visible="{viewModel>/isEditMode}"
-                                            />
-                                        </m:HBox>
+                                                <!-- Edit Mode -->
+                                                <m:Input
+                                                    value="{ path: 'Rate', type: 'sap.ui.model.type.Float', formatOptions: { minFractionDigits: 2, maxFractionDigits: 2 } }"
+                                                    liveChange=".onItemValueChange"
+                                                    width="5rem"
+                                                    textAlign="End"
+                                                    visible="{viewModel>/isEditMode}"
+                                                    placeholder="Enter Rate"
+                                                />
+                                            </m:HBox>
 
-                                        <m:HBox justifyContent="End">
-                                            <m:ObjectNumber
-                                                number="{= (${Quantity} * ${Rate}).toFixed(2) }"
-                                                unit="INR"
-                                            />
-                                        </m:HBox>
-
+                                            <m:HBox justifyContent="End">
+                                                <m:ObjectNumber
+                                                    number="{= (${Quantity} * ${Rate}).toFixed(2) }"
+                                                    unit="INR"
+                                                />
+                                            </m:HBox>
+                                        </m:cells>
                                     </m:ColumnListItem>
                                 </m:items>
                             </m:Table>
-                        </blocks>
-                    </ObjectPageSubSection>
-                </subSections>
-            </ObjectPageSection>
-        </sections>
-        <footer>
+                        </uxap:blocks>
+                    </uxap:ObjectPageSubSection>
+                </uxap:subSections>
+            </uxap:ObjectPageSection>
+        </uxap:sections>
+        <uxap:footer>
             <m:OverflowToolbar visible="{viewModel>/isEditMode}">
                 <m:ToolbarSpacer />
                 <m:Button
@@ -375,6 +489,6 @@
                     press="onCancel"
                 />
             </m:OverflowToolbar>
-        </footer>
-    </ObjectPageLayout>
+        </uxap:footer>
+    </uxap:ObjectPageLayout>
 </mvc:View>

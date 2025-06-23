@@ -36,26 +36,20 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <f:header>
+       <f:header>
             <f:DynamicPageHeader>
                 <f:content>
-                    <FlexBox
-                        direction="Row"
-                        alignItems="Center"
-                        justifyContent="Start"
-                        wrap="Wrap"
-                    class="sapUiSmallMarginBottom">
-                    
                     <fb:FilterBar
                         id="filterbar"
+                        layoutMode="Combined"
                         persistencyKey="myPersKey"
                         useToolbar="false"
                         search=".onSearch"
                         filterChange=".onFilterChange"
                         afterVariantLoad=".onAfterVariantLoad"
                     >
-                        
                         <fb:filterGroupItems>
+
                             <fb:FilterGroupItem
                                 name="PO_Search"
                                 label=""
@@ -64,24 +58,28 @@
                                 <fb:control>
                                     <SearchField
                                         id="poSearchField"
-                                        width="300px"
+                                        class="sapUiSmallMarginEnd"
+                                        width="100%"
                                         placeholder="Search"
                                         search=".onSearch" />
                                 </fb:control>
                             </fb:FilterGroupItem>
+
                             <fb:FilterGroupItem
                                 name="Description"
                                 label="PO Description"
                                 groupName="Group1"
                                 visibleInFilterBar="true">
                                 <fb:control>
-                                <MultiInput
-                                    id="poDescriptionInput"
-                                    showValueHelp="true"
-                                    valueHelpRequest=".onPODescriptionHelp"
-                                    valueHelpOnly="true"
-                                    showSuggestion="true"
-                                    suggest=".onPOSuggest"/>
+                                    <MultiInput
+                                        id="poDescriptionInput"
+                                        class="sapUiSmallMarginEnd"
+                                        width="100%"
+                                        showValueHelp="true"
+                                        valueHelpRequest=".onPODescriptionHelp"
+                                        valueHelpOnly="true"
+                                        showSuggestion="true"
+                                        suggest=".onPOSuggest"/>
                                 </fb:control>
                             </fb:FilterGroupItem>
 
@@ -89,17 +87,14 @@
                                 name="Company_Code"
                                 label="Company"
                                 groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
+                                visibleInFilterBar="true">
                                 <fb:control>
                                     <MultiComboBox
+                                        class="sapUiSmallMarginEnd"
+                                        width="100%"
                                         selectionChange=".onSelectionChange"
-                                        items="{ path: '/Company', parameters: { top: 100 } }"
-                                    >
-                                        <core:Item
-                                            key="{Code}"
-                                            text="{Code}"
-                                        />
+                                        items="{ path: '/Company', parameters: { top: 100 } }">
+                                        <core:Item key="{Code}" text="{Code}" />
                                     </MultiComboBox>
                                 </fb:control>
                             </fb:FilterGroupItem>
@@ -108,17 +103,14 @@
                                 name="Vendor_Number"
                                 label="Vendor"
                                 groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
+                                visibleInFilterBar="true">
                                 <fb:control>
                                     <MultiComboBox
+                                        class="sapUiSmallMarginEnd"
+                                        width="100%"
                                         selectionChange=".onSelectionChange"
-                                        items="{ path: '/Vendor', parameters: { top: 100 } }"
-                                    >
-                                        <core:Item
-                                            key="{Number}"
-                                            text="{Number}"
-                                        />
+                                        items="{ path: '/Vendor', parameters: { top: 100 } }">
+                                        <core:Item key="{Number}" text="{Number}" />
                                     </MultiComboBox>
                                 </fb:control>
                             </fb:FilterGroupItem>
@@ -127,23 +119,20 @@
                                 name="DocumentType_ID"
                                 label="Document Type"
                                 groupName="Group1"
-                                visibleInFilterBar="true"
-                            >
+                                visibleInFilterBar="true">
                                 <fb:control>
                                     <MultiComboBox
+                                        class="sapUiSmallMarginEnd"
+                                        width="100%"
                                         selectionChange=".onSelectionChange"
-                                        items="{ path: '/DocumentType', parameters: { top: 100 } }"
-                                    >
-                                        <core:Item
-                                            key="{ID}"
-                                            text="{ID}"
-                                        />
+                                        items="{ path: '/DocumentType', parameters: { top: 100 } }">
+                                        <core:Item key="{ID}" text="{ID}" />
                                     </MultiComboBox>
                                 </fb:control>
                             </fb:FilterGroupItem>
+
                         </fb:filterGroupItems>
                     </fb:FilterBar>
-                    </FlexBox>
                 </f:content>
             </f:DynamicPageHeader>
         </f:header>
@@ -217,16 +206,5 @@
                 </items>
             </Table>
         </f:content>
-
-        <!-- Footer with Buttons -->
-        <!-- <f:footer>
-            <Bar>
-                <contentRight>
-                <Button id="b2" icon="sap-icon://add" press=".onOpenCreateDialog" />
-                <Button id="b3" icon="sap-icon://edit" press=".onOpenUpdateDialog" />
-                <Button id="b4" icon="sap-icon://delete" press=".onDeleteProduct" />
-                </contentRight>
-            </Bar>
-        </f:footer> -->
     </f:DynamicPage>
 </mvc:View>
