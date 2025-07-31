@@ -143,7 +143,7 @@
                 growing="true"
                 growingThreshold="5"
                 growingScrollToLoad="true"
-                items="{ path: '/PurchaseOrder', parameters: { expand: 'Items,Company,Vendor,DocumentType' } }"
+                items="{ path: '/PurchaseOrder', parameters: { expand: 'Company,Vendor,DocumentType' } }"
                 mode="SingleSelectLeft"
                 updateFinished=".onUpdateFinished"
             >
