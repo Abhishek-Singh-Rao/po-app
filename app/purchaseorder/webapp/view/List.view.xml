@@ -145,10 +145,11 @@
                 growingScrollToLoad="true"
                 items="{ path: '/PurchaseOrder', parameters: { expand: 'Items,Company,Vendor,DocumentType' } }"
                 mode="SingleSelectLeft"
+                updateFinished=".onUpdateFinished"
             >
                 <headerToolbar>
                     <OverflowToolbar>
-                        <Title text="Purchase Orders" />
+                        <Title id="purchaseOrderTitle" text="Purchase Orders" />
                         <ToolbarSpacer />
                         <Button
                             id="b1"

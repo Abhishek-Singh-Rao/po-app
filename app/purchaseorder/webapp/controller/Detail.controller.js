@@ -33,15 +33,15 @@ sap.ui.define([
                         oModel.setDeferredGroups(["changes"]);
 
 
-                        // ✅ Preload Company data for dropdown
+                        //  Preload Company data for dropdown
                         oModel.read("/Company", {
-                              success: () => console.log("✅ Company data loaded"),
+                              success: () => console.log(" Company data loaded"),
                               error: () => MessageToast.show("Failed to load Company data")
                         });
 
-                        // ✅ Preload DocumentType data for dropdown
+                        // Preload DocumentType data for dropdown
                         oModel.read("/DocumentType", {
-                              success: () => console.log("✅ DocumentType data loaded"),
+                              success: () => console.log("DocumentType data loaded"),
                               error: () => MessageToast.show("Failed to load DocumentType data")
                         });
                   } else {
@@ -69,48 +69,79 @@ sap.ui.define([
 
             _onObjectMatched: function (oEvent) {
                   const sId = decodeURIComponent(oEvent.getParameter("arguments").ID);
-                  this.sPurchaseOrder = sId;
-                  const sPath = `/PurchaseOrder(${sId})`;
-
                   const oView = this.getView();
+                  const oModel = oView.getModel();
                   const oTable = this.byId("ItemsTable");
-
-                  oView.bindElement({
-                        path: sPath,
-                        parameters: {
-                              expand: "Company,Vendor,DocumentType"
-                        }
-                  });
-                  oView.getModel().metadataLoaded().then(() => {
-                        const oBinding = oTable.getBinding("items");
-                        if (oBinding) {
-                              oBinding.attachEventOnce("dataReceived", function () {
-                                    const aContexts = oBinding.getContexts();
-                                    if (aContexts.length === 0) {
-                                          oBinding.create({}, true, { inactive: true });
-                                    }
-
-                                    //  Recalculate Amount for each item
-                                    aContexts.forEach(ctx => {
-                                          const item = ctx.getObject();
-                                          const quantity = parseFloat(item?.Quantity);
-                                          const rate = parseFloat(item?.Rate);
-                                          if (!isNaN(quantity) && !isNaN(rate)) {
-                                                const amount = quantity * rate;
-                                                ctx.getModel().setProperty(ctx.getPath() + "/Amount", amount);
-                                          }
-                                    });
-
-                                    //  Update Total after calculating individual Amounts
-                                    this.updateTotalAmount();
-                              }.bind(this));
-
-
-                        }
-                  });
-
-            },
-
+                  const vm = oView.getModel("viewModel");
+                
+                  // CREATE FLOW
+                  if (sId && sId.toUpperCase() === "NEW") {
+                    const oContext = oModel.createEntry("/PurchaseOrder", {
+                      groupId: "changes",
+                      properties: {
+                        Description: "",
+                        Vendor_Number: null,
+                        Company_Code: null,
+                        DocumentType_ID: null
+                      }
+                    });
+                
+                    oView.setBindingContext(oContext);
+                
+                    // Explicitly bind Items to transient PurchaseOrder context
+                    oTable.bindItems({
+                      path: oContext.getPath() + "/Items",
+                      template: oTable.getBindingInfo("items").template,
+                      templateShareable: true
+                    });
+                
+                    // Header: 0.00 initially
+                    this.byId("totalAmountNumber").setNumber("0.00");
+                
+                    vm.setProperty("/isCreateMode", true);
+                    this.setMode("edit");
+                    vm.checkUpdate(true);
+                  }
+                
+                  // EXISTING FLOW
+                  else {
+                    this.sPurchaseOrder = sId;
+                
+                    oView.bindElement({
+                      path: `/PurchaseOrder(${sId})`,
+                      parameters: {
+                        expand: "Company,Vendor,DocumentType"
+                      }
+                    });
+                
+                    // Explicitly bind Items for existing PO
+                    oTable.bindItems({
+                      path: `/PurchaseOrder(${sId})/Items`,
+                      template: oTable.getBindingInfo("items").template,
+                      templateShareable: true
+                    });
+                
+                    vm.setProperty("/isCreateMode", false);
+                    this.setMode("display");
+                
+                    // When items load, calculate Amounts
+                    oModel.metadataLoaded().then(() => {
+                      const oBinding = oTable.getBinding("items");
+                      if (oBinding) {
+                        oBinding.attachEventOnce("dataReceived", () => {
+                          oBinding.getContexts().forEach(ctx => {
+                            const itm = ctx.getObject();
+                            const amt = (+itm.Quantity || 0) * (+itm.Rate || 0);
+                            ctx.getModel().setProperty(ctx.getPath() + "/Amount", amt);
+                          });
+                          this.updateTotalAmount();
+                        });
+                      }
+                    });
+                  }
+                },
+                                      
+                
             // Total Amount
             updateTotalAmount: function () {
                   const oTable = this.byId("ItemsTable");
@@ -156,10 +187,20 @@ sap.ui.define([
 
             // Modes
             setMode: function (sMode) {
-                  this.getView().getModel("viewModel").setProperty("/isEditMode", sMode === "edit" ? true : false)
-                  this.getView().getModel("viewModel").setProperty("/isDisplayMode", sMode === "display" ? true : false)
-            },
-
+                  const vm = this.getView().getModel("viewModel");
+                
+                  vm.setProperty("/isEditMode",    sMode === "edit");
+                  vm.setProperty("/isDisplayMode", sMode === "display");
+                
+                  // Clear create flag only when switching to display
+                  if (sMode === "display") {
+                    vm.setProperty("/isCreateMode", false);
+                  }
+                
+                  // Force UI bindings to refresh immediately
+                  vm.checkUpdate(true);
+                },
+                
             // Edit Button
             onEdit: function () {
                   this.setMode("edit");
@@ -198,152 +239,174 @@ sap.ui.define([
                   const oSelect = oEvent.getSource();
                   const selectedKey = oSelect.getSelectedKey();
                   const oContext = oSelect.getBindingContext();
-
-                  if (oContext) {
-                        const oModel = oContext.getModel();
-
-                        // Step 1: Update the selected Company_Code in the model
-                        oModel.setProperty(oContext.getPath() + "/Company_Code", selectedKey);
-
-                        // Step 2: Reload the full Company object based on the selected key
-                        oModel.read(`/Company('${selectedKey}')`, {
-                              success: (oData) => {
-                                    oModel.setProperty(oContext.getPath() + "/Company", oData);
-                              },
-                              error: () => {
-                                    sap.m.MessageToast.show("Failed to load Company description.");
-                              }
-                        });
-                  }
-            },
-
-
-            onSave: function () {
-                  const oView = this.getView();
-                  const oModel = oView.getModel();
-                  const oContext = oView.getBindingContext();
                 
+                  if (oContext) {
+                    const oModel = oContext.getModel();
+                    const sPath = oContext.getPath(); // FIXED
+                
+                    // Step 1: Set the new company code
+                    oModel.setProperty(sPath + "/Company_Code", selectedKey);
+                
+                    // Step 2: Read full Company object and update nested binding
+                    oModel.read(`/Company(${selectedKey})`, {
+                      success: (oData) => {
+                        oModel.setProperty(sPath + "/Company", oData); 
+                      },
+                      error: () => {
+                        sap.m.MessageToast.show("Failed to load company details.");
+                      }
+                    });
+                  }
+                },
+
+
+                onSave: function () {
+                  const oView    = this.getView();
+                  const oModel   = oView.getModel();
+                  const oContext = oView.getBindingContext();
+                  const vm       = oView.getModel("viewModel");
+                
+                  // 1. Nothing to save 
                   if (!oModel.hasPendingChanges("changes")) {
                     MessageToast.show("No changes to save.");
                     return;
                   }
                 
-                  const sPath = oContext.getPath();
-                  const now = new Date().toISOString(); // current timestamp
-                  const isNew = !oModel.getProperty(sPath + "/ID"); // new PO if no ID
+                  // 2. Validate PO ID if in create mode 
+                  if (vm.getProperty("/isCreateMode")) {
+                    const enteredId = oContext.getProperty("ID");
+                    if (!enteredId) {
+                      MessageToast.show("Please enter a Purchase Order No. before saving.");
+                      return;
+                    }
                 
-                  // ✅ Set audit fields
-                  if (isNew) {
-                    oModel.setProperty(sPath + "/createdAt", now);
-                    oModel.setProperty(sPath + "/createdBy", this._currentUserName);
-                    oModel.setProperty(sPath + "/modifiedAt", now);
-                    oModel.setProperty(sPath + "/modifiedBy", this._currentUserName);
-                  } else {
-                    oModel.setProperty(sPath + "/modifiedAt", now);
-                    oModel.setProperty(sPath + "/modifiedBy", this._currentUserName);
+                    // 3. Inject PO_ID into every transient item
+                    const oItemsBinding = this.byId("ItemsTable").getBinding("items");
+                    if (oItemsBinding) {
+                      oItemsBinding.getAllCurrentContexts().forEach(ctx => {
+                        const curVal = ctx.getProperty("PO_ID");
+                        if (!curVal) {
+                          ctx.getModel().setProperty(ctx.getPath() + "/PO_ID", enteredId);
+                        }
+                      });
+                    }
                   }
                 
+                  // 4. Submit changes
                   oView.setBusy(true);
-                
                   oModel.submitChanges({
                     groupId: "changes",
-                    success: () => {
+                    success: (oData) => {
+                      //  Handle any batch sub-errors
+                      const hasError = (oData?.__batchResponses || []).some(r =>
+                        r.response && r.response.statusCode >= "400"
+                      );
+                      if (hasError) {
+                        oView.setBusy(false);
+                        MessageBox.error("Save failed. Please check required fields.");
+                        return;
+                      }
+                
                       oView.setBusy(false);
                       MessageToast.show("Changes saved.");
                       this.setMode("display");
                 
-                      // Get PO_ID if created
-                      const PO_ID = oContext && oContext.getProperty("ID");
+                      const PO_ID = oContext.getProperty("ID");
                 
+                      //  Update the URL if this was a new PO
+                      if (vm.getProperty("/isCreateMode") && PO_ID) {
+                        this.getOwnerComponent()
+                            .getRouter()
+                            .navTo("RouteDetail", { ID: encodeURIComponent(PO_ID) }, true);
+                        vm.setProperty("/isCreateMode", false);
+                      }
+                
+                      // Rebind view to fresh data
                       if (PO_ID) {
-                        this.sPurchaseOrder = PO_ID;
-                
-                        // Rebind to get fresh data
-                        const sRebindPath = "/PurchaseOrder(" + PO_ID + ")";
                         oView.bindElement({
-                          path: sRebindPath,
-                          parameters: {
-                            expand: "Company,Vendor,DocumentType"
-                          }
+                          path: `/PurchaseOrder(${PO_ID})`,
+                          parameters: { expand: "Company,Vendor,DocumentType" }
                         });
                 
-                        const oTable = this.byId("ItemsTable");
-                        const oBinding = oTable.getBinding("items");
-                        if (oBinding) {
-                          oBinding.refresh();
+                        const tblBind = this.byId("ItemsTable").getBinding("items");
+                        if (tblBind) {
+                          tblBind.refresh();
                         }
                       }
                 
-                      oModel.refresh(true); // full refresh
+                      // Refresh entire model so List page reflects it
+                      oModel.refresh(true);
                     },
                     error: () => {
                       oView.setBusy(false);
                       MessageBox.error("Failed to save changes.");
                     }
                   });
-                },
+                },                
+                
 
             // Create New Record
             onCreateRow: function () {
-                  const oTable = this.byId("ItemsTable");
-                  const oBinding = oTable.getBinding("items");
-
-                  if (!oBinding) {
-                        sap.m.MessageToast.show("Binding not found. Make sure parent context is set.");
-                        return;
+                  const oView    = this.getView();
+                  const vm       = oView.getModel("viewModel");
+                  const oContext = oView.getBindingContext();
+                  const poId     = oContext.getProperty("ID");
+                
+                  //  Guard clause: must enter PO ID before adding rows
+                  if (vm.getProperty("/isCreateMode") && !poId) {
+                    MessageToast.show("Please enter PO Number before adding items.");
+                    return;
                   }
-
-                  // Get parent PO ID from header binding (for edit mode)
-                  const oHeaderContext = this.getView().getBindingContext();
-                  const PO_ID = oHeaderContext && oHeaderContext.getProperty("ID");  // Will be undefined in create mode
-
-                  // Get current contexts (rows) from the binding
+                
+                  const oTable   = this.byId("ItemsTable");
+                  const oBinding = oTable.getBinding("items");
+                
+                  if (!oBinding) {
+                    MessageToast.show("Binding not found. Make sure parent context is set.");
+                    return;
+                  }
+                
+                  //  Find max existing ItemNo
                   const aContexts = oBinding.getCurrentContexts();
-
-                  // Find the max existing ItemNo
                   let maxItemNo = 0;
                   aContexts.forEach(ctx => {
-                        const oItem = ctx.getObject();
-                        if (oItem && typeof oItem.ItemNo === "number") {
-                              maxItemNo = Math.max(maxItemNo, oItem.ItemNo);
-                        }
+                    const oItem = ctx.getObject();
+                    if (oItem && typeof oItem.ItemNo === "number") {
+                      maxItemNo = Math.max(maxItemNo, oItem.ItemNo);
+                    }
                   });
-
+                
                   const nextItemNo = maxItemNo + 1;
-
-                  // Create new row with calculated ItemNo
+                
+                  // Create new row with injected PO_ID
                   const oNewData = {
-                        ItemNo: nextItemNo
+                    ItemNo: nextItemNo,
+                    PO_ID: poId   //  always inject it manually
                   };
-
-                  if (PO_ID) {
-                        oNewData.PO_ID = PO_ID;  // only assign if it's not null
-                  }
-
-                  oBinding.create(oNewData, true);  // true = insert at end
-
-                  sap.m.MessageToast.show("New row added with ItemNo: " + nextItemNo);
-
-                  // Optional: Update Amount if Quantity and Rate are present
+                
+                  oBinding.create(oNewData, true); // true = insert at end
+                  MessageToast.show("New row added with ItemNo: " + nextItemNo);
+                
+                  //  Recalculate Amount if Qty & Rate are set
                   setTimeout(() => {
-                        const aUpdatedContexts = oBinding.getCurrentContexts();
-                        const newCtx = aUpdatedContexts[aUpdatedContexts.length - 1];
-
-                        if (newCtx) {
-                              const newItem = newCtx.getObject();
-                              const quantity = parseFloat(newItem?.Quantity);
-                              const rate = parseFloat(newItem?.Rate);
-
-                              if (!isNaN(quantity) && !isNaN(rate)) {
-                                    const amount = quantity * rate;
-                                    newCtx.getModel().setProperty(newCtx.getPath() + "/Amount", amount);
-                              }
-                        }
-
-                        this.updateTotalAmount();
+                    const aUpdatedContexts = oBinding.getCurrentContexts();
+                    const newCtx = aUpdatedContexts[aUpdatedContexts.length - 1];
+                
+                    if (newCtx) {
+                      const newItem = newCtx.getObject();
+                      const quantity = parseFloat(newItem?.Quantity);
+                      const rate     = parseFloat(newItem?.Rate);
+                
+                      if (!isNaN(quantity) && !isNaN(rate)) {
+                        const amount = quantity * rate;
+                        newCtx.getModel().setProperty(newCtx.getPath() + "/Amount", amount);
+                      }
+                    }
+                
+                    this.updateTotalAmount();
                   }, 200);
-            },
-
+                },
+                
             onVendorValueHelp: function (oEvent) {
                   const oView = this.getView();
 
@@ -374,26 +437,43 @@ sap.ui.define([
 
             onVendorConfirm: function (oEvent) {
                   const oSelectedItem = oEvent.getParameter("selectedItem");
+              
                   if (oSelectedItem && this._oVendorInput) {
-                        const sDescription = oSelectedItem.getTitle();       // e.g. "GreenLeaf Traders"
-                        const sNumber = oSelectedItem.getDescription();      // e.g. "3" as string
-
-                        const oContext = this._oVendorInput.getBindingContext();
-                        if (oContext) {
-                              const oModel = oContext.getModel();
-                              const sPath = oContext.getPath();
-
-                              // ✅ Set flat key property for backend save
-                              oModel.setProperty(sPath + "/Vendor_Number", sNumber); // or parseInt(sNumber) if numeric
-
-                              // ✅ Optional: update nested display fields
-                              oModel.setProperty(sPath + "/Vendor", {
-                                    Description: sDescription,
-                                    Number: sNumber // avoid NaN
-                              });
-                        }
+                      const oVendorContext = oSelectedItem.getBindingContext();
+                      const sNumber = oVendorContext.getProperty("Number");
+                      const sDescription = oVendorContext.getProperty("Description");
+              
+                      if (!sNumber) {
+                          sap.m.MessageToast.show("Vendor number is missing.");
+                          return;
+                      }
+              
+                      const oContext = this._oVendorInput.getBindingContext();
+              
+                      if (oContext) {
+                          const oModel = oContext.getModel();
+                          const sPath = oContext.getPath();
+              
+                          // Step 1: Store vendor number in foreign key
+                          oModel.setProperty(sPath + "/Vendor_Number", sNumber);
+              
+                          // Step 2: (Optional) Fetch complete vendor via OData read
+                          const sKey = oModel.createKey("Vendor", { Number: sNumber });
+              
+                          oModel.read("/" + sKey, {
+                              success: (oData) => {
+                                  // Step 3: Set both fields to update input display
+                                  oModel.setProperty(sPath + "/Vendor/Number", oData.Number);
+                                  oModel.setProperty(sPath + "/Vendor/Description", oData.Description);
+                              },
+                              error: () => {
+                                  sap.m.MessageToast.show("Failed to load vendor details.");
+                              }
+                          });
+                      }
                   }
-            },
+              }
+              ,
 
             onVendorCancel: function (oEvent) {
                   const oBinding = oEvent.getSource().getBinding("items");
@@ -449,75 +529,40 @@ sap.ui.define([
             _onCreateMatched: function () {
                   const oView = this.getView();
                   const oModel = oView.getModel();
-
-                  // Clear any previous selection
-                  this.sPurchaseOrder = null;
-
-                  // Create a new entry context
-                  const oContext = oModel.createEntry("/PurchaseOrder", {
-                        groupId: "changes", // defer actual backend call until submitChanges
-                        properties: {
-                              Description: "",
-                              Vendor_Number: null,
-                              Company_Code: null,
-                              DocumentType_ID: null
-                        }
-                  });
-
-                  // Bind view to the new context
-                  oView.setBindingContext(oContext);
-
-                  // Set mode to edit
-                  this.setMode("edit");
-
-                  // Get Items table and its binding
                   const oTable = this.byId("ItemsTable");
+                
+                  this.sPurchaseOrder = null;
+                
+                  const oContext = oModel.createEntry("/PurchaseOrder", {
+                    groupId: "changes",
+                    properties: {
+                      Description: "",
+                      Vendor_Number: null,
+                      Company_Code: null,
+                      DocumentType_ID: null
+                    }
+                  });
+                
+                  oView.setBindingContext(oContext);
+                  this.setMode("edit");
+                
+                  // Explicitly bind Items table
                   if (oTable) {
-                        const oBinding = oTable.getBinding("items");
-                        if (oBinding) {
-                              oBinding.filter([]); // clear any previous rows
-
-                              // Create a default first item row
-                              oBinding.create({
-                                    ItemNo: 1 // optional starting value
-                              }, true);
-                        }
+                    oTable.bindItems({
+                      path: oContext.getPath() + "/Items",
+                      template: oTable.getBindingInfo("items").template,
+                      templateShareable: true
+                    });
                   }
-
-                  // Reset Total Amount display
-                  const oTotal = this.byId("totalAmountNumber");
-                  if (oTotal) {
-                        oTotal.setNumber("0.00");
-                  }
-            },
-
-            showUserPrompt: function () {
-                  if (!this._oUserDialog) {
-                        Fragment.load({
-                              name: "com.ycl.purchaseorder.fragment.UserPrompt",
-                              controller: this
-                        }).then((oDialog) => {
-                              this._oUserDialog = oDialog;
-                              this.getView().addDependent(oDialog);
-                              oDialog.open();
-                        });
-                  } else {
-                        this._oUserDialog.open();
-                  }
-            },
-
-            onUserConfirm: function () {
-                  const sName = sap.ui.getCore().byId("userInput").getValue();
-                  this._currentUserName = sName || "Anonymous";
-                  this._oUserDialog.close();
-
-                  // Now trigger save
-                  this.onSave();
-            },
-
-            onUserDialogClosed: function () {
-                  sap.ui.getCore().byId("userInput").setValue("");
-            }
+                
+                  this.byId("totalAmountNumber").setNumber("0.00");
+                }
+                ,
+                
+            formatKeyValue: function (key, value) {
+                  return key && value ? `${value} (${key})` : "";
+              }
+              
 
 
       });

@@ -79,7 +79,10 @@
                                 class="sapUiTinyMarginEnd"
                             />
                             <m:Link
-                                text="{Company/Description} ({Company/Code})"
+                                text="{
+                                    parts: ['Company/Code', 'Company/Description'],
+                                    formatter: '.formatKeyValue'
+                                }"
                             />
                         </m:HBox>
 
@@ -93,8 +96,11 @@
                                 class="sapUiTinyMarginEnd"
                             />
                             <m:Link
-                                text="{Vendor/Description} ({Vendor/Number})"
-                            />
+                                text="{
+                                    parts: ['Vendor/Number', 'Vendor/Description'],
+                                    formatter: '.formatKeyValue'
+                                }"
+                                />
                         </m:HBox>
                     </m:VBox>
 
@@ -117,7 +123,7 @@
                     >
                         <m:Title text="PO Document Type" />
                         <m:ObjectStatus
-                            text="{DocumentType_ID}"
+                            text="{DocumentType/Description} ({DocumentType_ID})"
                             class="sapMObjectStatusLarge"
                         />
                     </m:VBox>
@@ -228,26 +234,42 @@
                             >
                                 <forms:content>
                                     <!-- PO Number -->
-                                    <m:Label text="Purchase Order No." />
-                                    <m:Text text="{ID}" />
+                                    <m:Label text="Purchase Order No."/>
+                                        <m:HBox>
+                                            <!-- EXISTING orders (display OR edit): show read‑only text -->
+                                            <m:Text text="{ID}"
+                                                    visible="{= !${viewModel>/isCreateMode} }"/>
+
+                                            <!-- NEW order while in edit‑mode: let user type the key -->
+                                            <m:Input value="{ID}"
+                                                    width="10rem"
+                                                    placeholder="Enter PO Number"
+                                                    visible="{= ${viewModel>/isCreateMode} }"/>
+                                        </m:HBox>
 
                                     <!-- Company Code -->
                                     <m:Label text="Company Name" />
                                     <m:HBox>
                                         <m:Text
-                                            text="{Company/Description}({Company/Code})"
+                                            text="{
+                                                parts:['Company/Code', 'Company/Description'],
+                                                formatter: '.formatKeyValue'
+                                            }"
                                             visible="{viewModel>/isDisplayMode}"
                                         />
                                         <m:Select
                                             visible="{viewModel>/isEditMode}"
-                                            selectedKey="{Company/Code}"
+                                            selectedKey="{Company_Code}"
                                             items="{/Company}"
                                             width="13rem"
                                             
                                         >
                                             <core:Item
                                                 key="{Code}"
-                                                text="{Description}({Code})"
+                                                text="{
+                                                    parts: ['Code', 'Description'],
+                                                    formatter: '.formatKeyValue'
+                                                }"
                                             />
                                         </m:Select>
                                     </m:HBox>
@@ -256,18 +278,28 @@
                                     <m:Label text="Vendor Name" />
                                     <m:HBox>
                                     <m:Text
-                                        text="{Vendor/Description}({Vendor/Number})"
+                                        text="{
+                                                parts:['Vendor/Number', 'Vendor/Description'],
+                                                formatter: '.formatKeyValue'
+                                            }"
                                         visible="{viewModel>/isDisplayMode}"
                                     />
                                     <m:Input
                                         id="vendorInput"
                                         visible="{viewModel>/isEditMode}"
                                         width="13rem"
-                                        value="{Vendor/Description}"
                                         showValueHelp="true"
                                         valueHelpRequest=".onVendorValueHelp"
                                         placeholder="Select Vendor"
+                                        value="{
+                                            parts: [
+                                                { path: 'Vendor/Number' },
+                                                { path: 'Vendor/Description' }
+                                            ],
+                                            formatter: '.formatKeyValue'
+                                        }"
                                     />
+
                                     </m:HBox>
 
                                     <!-- Description -->
@@ -289,7 +321,10 @@
                                     <m:Label text="Document Type" />
                                     <m:HBox>
                                     <m:Text
-                                        text="{= ${DocumentType_ID} + ' - ' + ${DocumentType/Description} }"
+                                        text="{
+                                                parts:['DocumentType/ID', 'DocumentType/Description'],
+                                                formatter: '.formatKeyValue'
+                                            }"
                                         visible="{viewModel>/isDisplayMode}"
                                     />
                                     <m:Select
@@ -305,7 +340,10 @@
                                     >
                                         <core:Item
                                             key="{ID}"
-                                            text="{ID}-{Description}"
+                                            text="{
+                                                parts:['ID', 'Description'],
+                                                formatter: '.formatKeyValue'
+                                            }"
                                         />
                                     </m:Select>
                                     </m:HBox>
@@ -482,7 +520,7 @@
                 <m:Button
                     text="Save"
                     type="Emphasized"
-                    press=".showUserPrompt"
+                    press=".onSave"
                 />
                 <m:Button
                     text="Cancel"

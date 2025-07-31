@@ -35,7 +35,7 @@ sap.ui.define([
       });
 
       this.oSmartVariantManagement.addPersonalizableControl(oPersInfo);
-      this.oSmartVariantManagement.initialise(() => {}, this.oFilterBar);
+      this.oSmartVariantManagement.initialise(() => { }, this.oFilterBar);
     },
 
     onSearch: function () {
@@ -97,7 +97,7 @@ sap.ui.define([
     onFilterChange: function () {
       this._updateLabelsAndTable();
     },
-    
+
     onAfterVariantLoad: function () {
       this._updateLabelsAndTable();
     },
@@ -230,30 +230,34 @@ sap.ui.define([
         }
       });
     },
-    
-    onOpenCreateDialog: function () {
-  const oModel = this.getView().getModel();
 
-  oModel.read("/PurchaseOrder", {
-    urlParameters: {
-      "$orderby": "ID desc",
-      "$top": 1
-    },
-    success: (oData) => {
-      let nextId = 1;
-      if (oData.results.length > 0) {
-        nextId = oData.results[0].ID + 1;
-      }
-      this.getOwnerComponent().getRouter().navTo("RouteCreate", {
-        ID: nextId // pass new ID
+    onOpenCreateDialog: function () {
+      this.getOwnerComponent().getRouter().navTo("RouteDetail", {
+        ID: "NEW"
       });
     },
-    error: () => {
-      sap.m.MessageToast.show("Failed to generate new PO ID");
-    }
-  });
-}
 
+    onUpdateFinished: function (oEvent) {
+      const oBinding = oEvent.getSource().getBinding("items");
+      let iTotal = 0;
     
+      if (oBinding && oBinding.getLength) {
+        iTotal = oBinding.getLength(); // this usually reflects the $count even with growing
+      }
+    
+      const oTitle = this.byId("purchaseOrderTitle");
+      if (oTitle) {
+        const sTitle = "Purchase Orders";
+        if (iTotal && iTotal > 0) {
+          oTitle.setText(`${sTitle} (${iTotal})`);
+        } else {
+          oTitle.setText(sTitle);
+        }
+      }
+    }
+    
+
+
   });
 });
+
